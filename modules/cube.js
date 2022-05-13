@@ -29,9 +29,10 @@ module.rotation = {
     M: 7,
     E: 8,
     S: 9,
-    X: 10,
-    Y: 11,
-    Z: 12,
+    // TODO
+    // X: 10,
+    // Y: 11,
+    // Z: 12,
 };
 
 // Private constants
@@ -43,7 +44,72 @@ const off = {
     r: module.face.RIGHT * 9,
     b: module.face.BACK * 9,
     d: module.face.DOWN * 9,
-}
+};
+
+const rotate_data = [];
+rotate_data[module.rotation.F] = {
+    face: module.face.FRONT,
+    indices: [
+        off.u + 6, off.u + 7, off.u + 8, off.r + 0, off.r + 3, off.r + 6,
+        off.d + 2, off.d + 1, off.d + 0, off.l + 8, off.l + 5, off.l + 2,
+    ],
+};
+rotate_data[module.rotation.B] = {
+    face: module.face.BACK,
+    indices: [
+        off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
+        off.d + 8, off.d + 7, off.d + 6, off.r + 8, off.r + 5, off.r + 2,
+    ],
+};
+rotate_data[module.rotation.R] = {
+    face: module.face.RIGHT,
+    indices: [
+        off.u + 8, off.u + 5, off.u + 2, off.b + 0, off.b + 3, off.b + 6,
+        off.d + 8, off.d + 5, off.d + 2, off.f + 8, off.f + 5, off.f + 2,
+    ],
+};
+rotate_data[module.rotation.L] = {
+    face: module.face.LEFT,
+    indices: [
+        off.u + 0, off.u + 3, off.u + 6, off.f + 0, off.f + 3, off.f + 6,
+        off.d + 0, off.d + 3, off.d + 6, off.b + 8, off.b + 5, off.b + 2,
+    ],
+};
+rotate_data[module.rotation.D] = {
+    face: module.face.DOWN,
+    indices: [
+        off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
+        off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
+    ],
+};
+rotate_data[module.rotation.U] = {
+    face: module.face.UP,
+    indices: [
+        off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
+        off.f + 2, off.f + 1, off.f + 0, off.l + 2, off.l + 1, off.l + 0,
+    ],
+};
+rotate_data[module.rotation.M] = {
+    face: null,
+    indices: [
+        off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
+        off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
+    ],
+};
+rotate_data[module.rotation.E] = {
+    face: null,
+    indices: [
+        off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
+        off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
+    ],
+};
+rotate_data[module.rotation.S] = {
+    face: null,
+    indices: [
+        off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
+        off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
+    ],
+};
 
 // Public functions
 
@@ -58,12 +124,12 @@ module.create = function() {
     //             D00 D01 D02
     //             D10 D11 D12
     //             D20 D21 D22
-    // F => indices  0- 8
-    // B => indices  9-17
-    // R => indices 18-26
-    // L => indices 27-35
-    // D => indices 36-44
-    // U => indices 45-53
+    // U => indices  0- 8
+    // L => indices  9-17
+    // F => indices 18-26
+    // R => indices 27-35
+    // B => indices 36-44
+    // D => indices 45-53
     return [
         ...Array(9).fill(module.color.GREEN),
         ...Array(9).fill(module.color.BLUE),
@@ -78,6 +144,8 @@ module.create = function() {
 module.copy = function(cube) {
     return [...cube];
 };
+
+// Convert a cube to a string
 module.to_string = function(cube) {
     let f = module.face.FRONT * 9;
     let b = module.face.BACK * 9;
@@ -133,21 +201,16 @@ module.set_at = function(cube, face, row, col, value) {
 module.rotate = function(cube, rotation) {
     const ccw = (rotation < 0);
     const abs_rotation = Math.abs(rotation);
-    const rotation_funcs = [
-        rotate_f,
-        rotate_b,
-        rotate_r,
-        rotate_l,
-        rotate_d,
-        rotate_u,
-        rotate_m,
-        rotate_e,
-        rotate_s,
-        rotate_x,
-        rotate_y,
-        rotate_z,
-    ]
-    rotation_funcs[abs_rotation - 1](cube, ccw);
+    const data = rotate_data[abs_rotation];
+    if (data.face !== null) {
+        rotate_face(cube, data.face, ccw);
+    }
+    const cube_data = data.indices.map(i => cube[i]);
+
+    const offset = ccw ? 9 : 3;
+    for (let i = 0; i < 12; i++) {
+        cube[data.indices[(i + offset) % 12]] = cube_data[i];
+    }
 };
 
 // Private functions
@@ -172,114 +235,6 @@ const rotate_face = function(cube, face, ccw) {
     for (let i = 0; i < 9; i++) {
         cube[offset + i] = new_face[i];
     }
-};
-
-// Rotate the front of a cube
-const rotate_f = function(cube, ccw) {
-    rotate_face(cube, module.face.FRONT, ccw)
-    let save = [
-        cube[off.u + 6],
-        cube[off.u + 7],
-        cube[off.u + 8]
-    ];
-    if (ccw) {
-        cube[off.u + 6] = cube[off.r + 0];
-        cube[off.u + 7] = cube[off.r + 3];
-        cube[off.u + 8] = cube[off.r + 6];
-        cube[off.r + 0] = cube[off.d + 2];
-        cube[off.r + 3] = cube[off.d + 1];
-        cube[off.r + 6] = cube[off.d + 0];
-        cube[off.d + 2] = cube[off.l + 8];
-        cube[off.d + 1] = cube[off.l + 5];
-        cube[off.d + 0] = cube[off.l + 2];
-        cube[off.l + 8] = save[0];
-        cube[off.l + 5] = save[1];
-        cube[off.l + 3] = save[2];
-    } else {
-        cube[off.u + 6] = cube[off.l + 8];
-        cube[off.u + 7] = cube[off.l + 5];
-        cube[off.u + 8] = cube[off.l + 2];
-        cube[off.l + 8] = cube[off.d + 2];
-        cube[off.l + 5] = cube[off.d + 1];
-        cube[off.l + 2] = cube[off.d + 0];
-        cube[off.d + 2] = cube[off.r + 0];
-        cube[off.d + 1] = cube[off.r + 3];
-        cube[off.d + 0] = cube[off.r + 6];
-        cube[off.r + 0] = save[0];
-        cube[off.r + 3] = save[1];
-        cube[off.r + 6] = save[2];
-    }
-};
-const rotate_b = function(cube, ccw) {
-    rotate_face(cube, module.face.BACK, ccw)
-};
-const rotate_r = function(cube, ccw) {
-    rotate_face(cube, module.face.RIGHT, ccw)
-    let save = [
-        cube[off.u + 8],
-        cube[off.u + 5],
-        cube[off.u + 2],
-    ];
-    if (ccw) {
-        cube[off.u + 8] = cube[off.b + 0];
-        cube[off.u + 5] = cube[off.b + 3];
-        cube[off.u + 2] = cube[off.b + 6];
-
-        cube[off.b + 0] = cube[off.d + 8];
-        cube[off.b + 3] = cube[off.d + 5];
-        cube[off.b + 6] = cube[off.d + 2];
-
-        cube[off.d + 8] = cube[off.f + 8];
-        cube[off.d + 5] = cube[off.f + 5];
-        cube[off.d + 2] = cube[off.f + 2];
-
-        cube[off.f + 8] = save[0];
-        cube[off.f + 5] = save[1];
-        cube[off.f + 2] = save[2];
-    } else {
-        cube[off.u + 8] = cube[off.f + 8];
-        cube[off.u + 5] = cube[off.f + 5];
-        cube[off.u + 2] = cube[off.f + 2];
-
-        cube[off.f + 8] = cube[off.d + 8];
-        cube[off.f + 5] = cube[off.d + 5];
-        cube[off.f + 2] = cube[off.d + 2];
-
-        cube[off.d + 8] = cube[off.b + 0];
-        cube[off.d + 5] = cube[off.b + 3];
-        cube[off.d + 2] = cube[off.b + 6];
-
-        cube[off.b + 0] = save[0];
-        cube[off.b + 3] = save[1];
-        cube[off.b + 6] = save[2];
-    }
-};
-const rotate_l = function(cube, ccw) {
-    rotate_face(cube, module.face.LEFT, ccw)
-};
-const rotate_d = function(cube, ccw) {
-    rotate_face(cube, module.face.DOWN, ccw)
-};
-const rotate_u = function(cube, ccw) {
-    rotate_face(cube, module.face.UP, ccw)
-};
-const rotate_m = function(cube, ccw) {
-    // TODO
-};
-const rotate_e = function(cube, ccw) {
-    // TODO
-};
-const rotate_s = function(cube, ccw) {
-    // TODO
-};
-const rotate_x = function(cube, ccw) {
-    // TODO
-};
-const rotate_y = function(cube, ccw) {
-    // TODO
-};
-const rotate_z = function(cube, ccw) {
-    // TODO
 };
 
 return module;

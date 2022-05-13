@@ -3,8 +3,18 @@ import { cube } from './modules/cube.js';
 let c = cube.create();
 console.log(cube.to_string(c));
 
-cube.rotate(c, cube.rotation.F);
-console.log(cube.to_string(c));
+let rotations = Object.keys(cube.rotation);
 
-cube.rotate(c, cube.rotation.R);
-console.log(cube.to_string(c));
+for (const elem of rotations) {
+    cube.rotate(c, cube.rotation[elem]);
+    console.log(elem);
+    console.log(cube.to_string(c));
+}
+
+rotations.reverse();
+
+for (const elem of rotations) {
+    cube.rotate(c, -cube.rotation[elem]);
+    console.log("-" + elem);
+    console.log(cube.to_string(c));
+}
