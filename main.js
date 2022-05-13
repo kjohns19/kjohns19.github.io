@@ -1,4 +1,4 @@
-import { cube } from './modules/cube.js';
+import * as cube from './modules/cube.js';
 
 let c = cube.create();
 console.log(cube.to_string(c));
