@@ -1,4 +1,4 @@
-export const cube = function() {
+export const cube = (() => {
 const module = {};
 
 // Public constants
@@ -114,7 +114,7 @@ rotate_data[module.rotation.S] = {
 // Public functions
 
 // Create a cube
-module.create = function() {
+module.create = () => {
     //             U00 U01 U02
     //             U10 U11 U12
     //             U20 U21 U22
@@ -141,12 +141,12 @@ module.create = function() {
 };
 
 // Copy a cube
-module.copy = function(cube) {
+module.copy = (cube) => {
     return [...cube];
 };
 
 // Convert a cube to a string
-module.to_string = function(cube) {
+module.to_string = (cube) => {
     let f = module.face.FRONT * 9;
     let b = module.face.BACK * 9;
     let r = module.face.RIGHT * 9;
@@ -189,16 +189,16 @@ module.to_string = function(cube) {
 };
 
 // Get the face value at a position
-module.get_at = function(cube, face, row, col) {
+module.get_at = (cube, face, row, col) => {
     return cube[face * 3 * 3 + row * 3 + col];
 };
 // Set the face value at a position
-module.set_at = function(cube, face, row, col, value) {
+module.set_at = (cube, face, row, col, value) => {
     cube[face * 3 * 3 + row * 3 + col] = value;
 }
 
 // Apply a rotation to the cube
-module.rotate = function(cube, rotation) {
+module.rotate = (cube, rotation) => {
     const ccw = (rotation < 0);
     const abs_rotation = Math.abs(rotation);
     const data = rotate_data[abs_rotation];
@@ -216,7 +216,7 @@ module.rotate = function(cube, rotation) {
 // Private functions
 
 // Rotate a face clockwise or counter-clockwise
-const rotate_face = function(cube, face, ccw) {
+const rotate_face = (cube, face, ccw) => {
     const offset = face * 9;
     let new_face = [
         cube[offset + 6],
@@ -238,4 +238,4 @@ const rotate_face = function(cube, face, ccw) {
 };
 
 return module;
-}();
+})();
