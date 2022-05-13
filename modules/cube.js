@@ -1,7 +1,8 @@
 export const cube = function() {
 const module = {};
 
-// Constants
+// Public constants
+
 module.face = {
     UP: 0,
     LEFT: 1,
@@ -32,6 +33,19 @@ module.rotation = {
     Y: 11,
     Z: 12,
 };
+
+// Private constants
+
+const off = {
+    u: module.face.UP * 9,
+    l: module.face.LEFT * 9,
+    f: module.face.FRONT * 9,
+    r: module.face.RIGHT * 9,
+    b: module.face.BACK * 9,
+    d: module.face.DOWN * 9,
+}
+
+// Public functions
 
 // Create a cube
 module.create = function() {
@@ -81,28 +95,28 @@ module.to_string = function(cube) {
     //       D D D
     //       D D D
     return (
-        '      ' + cube[u + 0] + ' ' + cube[u + 1] + ' ' + cube[u + 2] + '\n' +
-        '      ' + cube[u + 3] + ' ' + cube[u + 4] + ' ' + cube[u + 5] + '\n' +
-        '      ' + cube[u + 6] + ' ' + cube[u + 7] + ' ' + cube[u + 8] + '\n' +
+        '      ' + cube[off.u + 0] + ' ' + cube[off.u + 1] + ' ' + cube[off.u + 2] + '\n' +
+        '      ' + cube[off.u + 3] + ' ' + cube[off.u + 4] + ' ' + cube[off.u + 5] + '\n' +
+        '      ' + cube[off.u + 6] + ' ' + cube[off.u + 7] + ' ' + cube[off.u + 8] + '\n' +
 
-        cube[l + 0] + ' ' + cube[l + 1] + ' ' + cube[l + 2] + ' ' +
-        cube[f + 0] + ' ' + cube[f + 1] + ' ' + cube[f + 2] + ' ' +
-        cube[r + 0] + ' ' + cube[r + 1] + ' ' + cube[r + 2] + ' ' +
-        cube[b + 0] + ' ' + cube[b + 1] + ' ' + cube[b + 2] + '\n' +
+        cube[off.l + 0] + ' ' + cube[off.l + 1] + ' ' + cube[off.l + 2] + ' ' +
+        cube[off.f + 0] + ' ' + cube[off.f + 1] + ' ' + cube[off.f + 2] + ' ' +
+        cube[off.r + 0] + ' ' + cube[off.r + 1] + ' ' + cube[off.r + 2] + ' ' +
+        cube[off.b + 0] + ' ' + cube[off.b + 1] + ' ' + cube[off.b + 2] + '\n' +
 
-        cube[l + 3] + ' ' + cube[l + 4] + ' ' + cube[l + 5] + ' ' +
-        cube[f + 3] + ' ' + cube[f + 4] + ' ' + cube[f + 5] + ' ' +
-        cube[r + 3] + ' ' + cube[r + 4] + ' ' + cube[r + 5] + ' ' +
-        cube[b + 3] + ' ' + cube[b + 4] + ' ' + cube[b + 5] + '\n' +
+        cube[off.l + 3] + ' ' + cube[off.l + 4] + ' ' + cube[off.l + 5] + ' ' +
+        cube[off.f + 3] + ' ' + cube[off.f + 4] + ' ' + cube[off.f + 5] + ' ' +
+        cube[off.r + 3] + ' ' + cube[off.r + 4] + ' ' + cube[off.r + 5] + ' ' +
+        cube[off.b + 3] + ' ' + cube[off.b + 4] + ' ' + cube[off.b + 5] + '\n' +
 
-        cube[l + 6] + ' ' + cube[l + 7] + ' ' + cube[l + 8] + ' ' +
-        cube[f + 6] + ' ' + cube[f + 7] + ' ' + cube[f + 8] + ' ' +
-        cube[r + 6] + ' ' + cube[r + 7] + ' ' + cube[r + 8] + ' ' +
-        cube[b + 6] + ' ' + cube[b + 7] + ' ' + cube[b + 8] + '\n' +
+        cube[off.l + 6] + ' ' + cube[off.l + 7] + ' ' + cube[off.l + 8] + ' ' +
+        cube[off.f + 6] + ' ' + cube[off.f + 7] + ' ' + cube[off.f + 8] + ' ' +
+        cube[off.r + 6] + ' ' + cube[off.r + 7] + ' ' + cube[off.r + 8] + ' ' +
+        cube[off.b + 6] + ' ' + cube[off.b + 7] + ' ' + cube[off.b + 8] + '\n' +
 
-        '      ' + cube[d + 0] + ' ' + cube[d + 1] + ' ' + cube[d + 2] + '\n' +
-        '      ' + cube[d + 3] + ' ' + cube[d + 4] + ' ' + cube[d + 5] + '\n' +
-        '      ' + cube[d + 6] + ' ' + cube[d + 7] + ' ' + cube[d + 8] + '\n'
+        '      ' + cube[off.d + 0] + ' ' + cube[off.d + 1] + ' ' + cube[off.d + 2] + '\n' +
+        '      ' + cube[off.d + 3] + ' ' + cube[off.d + 4] + ' ' + cube[off.d + 5] + '\n' +
+        '      ' + cube[off.d + 6] + ' ' + cube[off.d + 7] + ' ' + cube[off.d + 8] + '\n'
     );
 };
 
@@ -164,52 +178,90 @@ const rotate_face = function(cube, face, ccw) {
 const rotate_f = function(cube, ccw) {
     rotate_face(cube, module.face.FRONT, ccw)
     let save = [
-        cube[module.face.UP * 9 + 6],
-        cube[module.face.UP * 9 + 7],
-        cube[module.face.UP * 9 + 8]
+        cube[off.u + 6],
+        cube[off.u + 7],
+        cube[off.u + 8]
     ];
     if (ccw) {
-        cube[module.face.UP * 9 + 6] = cube[module.face.RIGHT * 9 + 0];
-        cube[module.face.UP * 9 + 7] = cube[module.face.RIGHT * 9 + 3];
-        cube[module.face.UP * 9 + 8] = cube[module.face.RIGHT * 9 + 6];
-        cube[module.face.RIGHT * 9 + 0] = cube[module.face.DOWN * 9 + 2];
-        cube[module.face.RIGHT * 9 + 3] = cube[module.face.DOWN * 9 + 1];
-        cube[module.face.RIGHT * 9 + 6] = cube[module.face.DOWN * 9 + 0];
-        cube[module.face.DOWN * 9 + 2] = cube[module.face.LEFT * 9 + 8];
-        cube[module.face.DOWN * 9 + 1] = cube[module.face.LEFT * 9 + 5];
-        cube[module.face.DOWN * 9 + 0] = cube[module.face.LEFT * 9 + 2];
-        cube[module.face.LEFT * 9 + 8] = save[0];
-        cube[module.face.LEFT * 9 + 5] = save[1];
-        cube[module.face.LEFT * 9 + 3] = save[2];
+        cube[off.u + 6] = cube[off.r + 0];
+        cube[off.u + 7] = cube[off.r + 3];
+        cube[off.u + 8] = cube[off.r + 6];
+        cube[off.r + 0] = cube[off.d + 2];
+        cube[off.r + 3] = cube[off.d + 1];
+        cube[off.r + 6] = cube[off.d + 0];
+        cube[off.d + 2] = cube[off.l + 8];
+        cube[off.d + 1] = cube[off.l + 5];
+        cube[off.d + 0] = cube[off.l + 2];
+        cube[off.l + 8] = save[0];
+        cube[off.l + 5] = save[1];
+        cube[off.l + 3] = save[2];
     } else {
-        cube[module.face.UP * 9 + 6] = cube[module.face.LEFT * 9 + 8];
-        cube[module.face.UP * 9 + 7] = cube[module.face.LEFT * 9 + 5];
-        cube[module.face.UP * 9 + 8] = cube[module.face.LEFT * 9 + 2];
-        cube[module.face.LEFT * 9 + 8] = cube[module.face.DOWN * 9 + 2];
-        cube[module.face.LEFT * 9 + 5] = cube[module.face.DOWN * 9 + 1];
-        cube[module.face.LEFT * 9 + 2] = cube[module.face.DOWN * 9 + 0];
-        cube[module.face.DOWN * 9 + 2] = cube[module.face.RIGHT * 9 + 0];
-        cube[module.face.DOWN * 9 + 1] = cube[module.face.RIGHT * 9 + 3];
-        cube[module.face.DOWN * 9 + 0] = cube[module.face.RIGHT * 9 + 6];
-        cube[module.face.RIGHT * 9 + 0] = save[0];
-        cube[module.face.RIGHT * 9 + 3] = save[1];
-        cube[module.face.RIGHT * 9 + 6] = save[2];
+        cube[off.u + 6] = cube[off.l + 8];
+        cube[off.u + 7] = cube[off.l + 5];
+        cube[off.u + 8] = cube[off.l + 2];
+        cube[off.l + 8] = cube[off.d + 2];
+        cube[off.l + 5] = cube[off.d + 1];
+        cube[off.l + 2] = cube[off.d + 0];
+        cube[off.d + 2] = cube[off.r + 0];
+        cube[off.d + 1] = cube[off.r + 3];
+        cube[off.d + 0] = cube[off.r + 6];
+        cube[off.r + 0] = save[0];
+        cube[off.r + 3] = save[1];
+        cube[off.r + 6] = save[2];
     }
 };
 const rotate_b = function(cube, ccw) {
-    // TODO
+    rotate_face(cube, module.face.BACK, ccw)
 };
 const rotate_r = function(cube, ccw) {
-    // TODO
+    rotate_face(cube, module.face.RIGHT, ccw)
+    let save = [
+        cube[off.u + 8],
+        cube[off.u + 5],
+        cube[off.u + 2],
+    ];
+    if (ccw) {
+        cube[off.u + 8] = cube[off.b + 0];
+        cube[off.u + 5] = cube[off.b + 3];
+        cube[off.u + 2] = cube[off.b + 6];
+
+        cube[off.b + 0] = cube[off.d + 8];
+        cube[off.b + 3] = cube[off.d + 5];
+        cube[off.b + 6] = cube[off.d + 2];
+
+        cube[off.d + 8] = cube[off.f + 8];
+        cube[off.d + 5] = cube[off.f + 5];
+        cube[off.d + 2] = cube[off.f + 2];
+
+        cube[off.f + 8] = save[0];
+        cube[off.f + 5] = save[1];
+        cube[off.f + 2] = save[2];
+    } else {
+        cube[off.u + 8] = cube[off.f + 8];
+        cube[off.u + 5] = cube[off.f + 5];
+        cube[off.u + 2] = cube[off.f + 2];
+
+        cube[off.f + 8] = cube[off.d + 8];
+        cube[off.f + 5] = cube[off.d + 5];
+        cube[off.f + 2] = cube[off.d + 2];
+
+        cube[off.d + 8] = cube[off.b + 0];
+        cube[off.d + 5] = cube[off.b + 3];
+        cube[off.d + 2] = cube[off.b + 6];
+
+        cube[off.b + 0] = save[0];
+        cube[off.b + 3] = save[1];
+        cube[off.b + 6] = save[2];
+    }
 };
 const rotate_l = function(cube, ccw) {
-    // TODO
+    rotate_face(cube, module.face.LEFT, ccw)
 };
 const rotate_d = function(cube, ccw) {
-    // TODO
+    rotate_face(cube, module.face.DOWN, ccw)
 };
 const rotate_u = function(cube, ccw) {
-    // TODO
+    rotate_face(cube, module.face.UP, ccw)
 };
 const rotate_m = function(cube, ccw) {
     // TODO
