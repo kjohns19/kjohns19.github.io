@@ -279,7 +279,11 @@ export const rotate = (cube, rotation) => {
 export const parse_rotations = (rotations_str) => {
     const valid = Object.keys(rotation).join('');
     const regex = new RegExp(`[${valid}](?:'|2)?`, 'g');
-    return rotations_str.match(regex).map((rotation_str) => {
+    const match = rotations_str.toUpperCase().match(regex);
+    if (match === null) {
+        return [];
+    }
+    return match.map((rotation_str) => {
         if (rotation_str.length == 0 || rotation_str.length > 2) {
             return null;
         }
