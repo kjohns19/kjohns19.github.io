@@ -190,6 +190,13 @@ export const create = () => {
     ];
 };
 
+export const reset = (cube) => {
+    const new_cube = create();
+    new_cube.forEach((elem, i) => {
+        cube[i] = elem;
+    });
+};
+
 // Copy a cube
 export const copy = (cube) => {
     return [...cube];

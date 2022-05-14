@@ -4,8 +4,7 @@ const main = () => {
     const cube = rubik.create();
     console.log(rubik.to_string(cube));
     const grid = create_grid(cube);
-    create_rotation_input(grid);
-    create_rotation_buttons(grid);
+    setup_rotation_input_area(grid);
 }
 
 const update_grid = (grid) => {
@@ -61,26 +60,25 @@ const create_grid = (cube) => {
     return grid;
 };
 
-const create_rotation_input = (grid) => {
+const setup_rotation_input_area = (grid) => {
     const input = document.getElementById('rotate_input');
-    document.getElementById('rotate_button').addEventListener('click', () => {
+    const apply = () => {
+        rubik.reset(grid.cube);
         const rotations = rubik.parse_rotations(input.value);
-        console.log(rubik.rotations_to_string(rotations));
+        const rotations_str = rubik.rotations_to_string(rotations);
         for (const rotation of rotations) {
             rubik.rotate(grid.cube, rotation);
         };
         update_grid(grid);
-    });
-    document.getElementById('reset_button').addEventListener('click', () => {
-        const new_cube = rubik.create();
-        new_cube.forEach((elem, i) => {
-            grid.cube[i] = elem;
-        });
-        update_grid(grid);
-    });
-};
+    };
+    input.addEventListener('input', apply);
 
-const create_rotation_buttons = (grid) => {
+    document.getElementById('rotate_normalize_button').addEventListener('click', () => {
+        const rotations = rubik.parse_rotations(input.value);
+        const rotations_str = rubik.rotations_to_string(rotations);
+        input.value = rotations_str;
+    });
+
     const table = document.createElement('table');
     table.className = 'buttons';
     const rotations = ['R', 'L', 'F', 'B', 'U', 'D', 'M', 'E', 'S', 'X', 'Y', 'Z'];
@@ -98,8 +96,11 @@ const create_rotation_buttons = (grid) => {
                 button.innerHTML += '2';
             }
             button.addEventListener('click', () => {
-                rubik.rotate(grid.cube, mult * rubik.rotation[rotation]);
-                update_grid(grid);
+                if (input.value) {
+                    input.value += ' ';
+                }
+                input.value += button.innerHTML;
+                apply();
             });
             cell.appendChild(button);
         })
