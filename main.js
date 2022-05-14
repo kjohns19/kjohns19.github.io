@@ -48,7 +48,7 @@ const create_grid = (cube) => {
         for (let j = 0; j < 4; j++) {
             const cell = row.insertCell();
             cell.className = 'cube';
-            if (i == 1 || j == 1) {
+            if (i === 1 || j === 1) {
                 const face_table = create_face_table();
                 cell.appendChild(face_table);
             }
@@ -71,14 +71,14 @@ const create_rotation_buttons = (grid) => {
             const button = document.createElement('button');
             button.className = 'rotation';
             button.innerHTML = rotation;
-            if (i == 1) {
+            if (i === 1) {
                 button.innerHTML += '\'';
-            } else if (i == 2) {
+            } else if (i === 2) {
                 button.innerHTML += '2';
             }
             button.addEventListener('click', () => {
-                const times = (i == 2) ? 2 : 1;
-                const mult = (i == 1) ? -1 : 1;
+                const times = (i === 2) ? 2 : 1;
+                const mult = (i === 1) ? -1 : 1;
                 for (let j = 0; j < times; j++) {
                     rubik.rotate(grid.cube, mult * rubik.rotation[rotation]);
                 }
