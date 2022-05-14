@@ -1,23 +1,23 @@
-import * as cube from './modules/cube.js';
+import * as rubik from './modules/rubik.js';
 
 const main = () => {
-    let c = cube.create();
-    console.log(cube.to_string(c));
+    let cube = rubik.create();
+    console.log(rubik.to_string(cube));
 
-    let rotations = Object.keys(cube.rotation);
+    let rotations = Object.keys(rubik.rotation);
 
     for (const elem of rotations) {
-        cube.rotate(c, cube.rotation[elem]);
+        rubik.rotate(cube, rubik.rotation[elem]);
         console.log(elem);
-        console.log(cube.to_string(c));
+        console.log(rubik.to_string(cube));
     }
 
     rotations.reverse();
 
     for (const elem of rotations) {
-        cube.rotate(c, -cube.rotation[elem]);
+        rubik.rotate(cube, -rubik.rotation[elem]);
         console.log('-' + elem);
-        console.log(cube.to_string(c));
+        console.log(rubik.to_string(cube));
     }
 }
 
