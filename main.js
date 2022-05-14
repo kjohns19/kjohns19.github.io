@@ -55,28 +55,29 @@ const create_grid = (cube) => {
             }
         }
     }
-    document.body.appendChild(table);
+    document.getElementById('cube_area').appendChild(table);
 
     update_grid(grid);
     return grid;
 };
 
 const create_rotation_input = (grid) => {
-    const input = document.createElement('input');
-    input.type = 'text';
-    document.body.appendChild(input);
-
-    const button = document.createElement('button');
-    button.innerHTML = 'Rotate';
-    button.addEventListener('click', () => {
+    const input = document.getElementById('rotate_input');
+    document.getElementById('rotate_button').addEventListener('click', () => {
         const rotations = rubik.parse_rotations(input.value);
-        console.log(rotations);
+        console.log(rubik.rotations_to_string(rotations));
         for (const rotation of rotations) {
             rubik.rotate(grid.cube, rotation);
         };
         update_grid(grid);
     });
-    document.body.appendChild(button);
+    document.getElementById('reset_button').addEventListener('click', () => {
+        const new_cube = rubik.create();
+        new_cube.forEach((elem, i) => {
+            grid.cube[i] = elem;
+        });
+        update_grid(grid);
+    });
 };
 
 const create_rotation_buttons = (grid) => {
@@ -103,7 +104,7 @@ const create_rotation_buttons = (grid) => {
             cell.appendChild(button);
         })
     });
-    document.body.appendChild(table);
+    document.getElementById('input_area').appendChild(table);
 };
 
 main();

@@ -55,6 +55,7 @@ const off = {
 
 const rotate_data = [];
 rotate_data[rotation.F] = {
+    name: 'F',
     face: face.FRONT,
     indices: [
         off.u + 6, off.u + 7, off.u + 8, off.r + 0, off.r + 3, off.r + 6,
@@ -62,6 +63,7 @@ rotate_data[rotation.F] = {
     ],
 };
 rotate_data[rotation.B] = {
+    name: 'B',
     face: face.BACK,
     indices: [
         off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
@@ -69,6 +71,7 @@ rotate_data[rotation.B] = {
     ],
 };
 rotate_data[rotation.R] = {
+    name: 'R',
     face: face.RIGHT,
     indices: [
         off.u + 8, off.u + 5, off.u + 2, off.b + 0, off.b + 3, off.b + 6,
@@ -76,6 +79,7 @@ rotate_data[rotation.R] = {
     ],
 };
 rotate_data[rotation.L] = {
+    name: 'L',
     face: face.LEFT,
     indices: [
         off.u + 0, off.u + 3, off.u + 6, off.f + 0, off.f + 3, off.f + 6,
@@ -83,6 +87,7 @@ rotate_data[rotation.L] = {
     ],
 };
 rotate_data[rotation.D] = {
+    name: 'D',
     face: face.DOWN,
     indices: [
         off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
@@ -90,6 +95,7 @@ rotate_data[rotation.D] = {
     ],
 };
 rotate_data[rotation.U] = {
+    name: 'U',
     face: face.UP,
     indices: [
         off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
@@ -97,24 +103,28 @@ rotate_data[rotation.U] = {
     ],
 };
 rotate_data[rotation.M] = {
+    name: 'M',
     indices: [
         off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
         off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
     ],
 };
 rotate_data[rotation.E] = {
+    name: 'E',
     indices: [
         off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
         off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
     ],
 };
 rotate_data[rotation.S] = {
+    name: 'S',
     indices: [
         off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
         off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
     ],
 };
 rotate_data[rotation.X] = {
+    name: 'X',
     face: face.RIGHT,
     ccw_face: face.LEFT,
     indices: [
@@ -125,6 +135,7 @@ rotate_data[rotation.X] = {
     ],
 };
 rotate_data[rotation.Y] = {
+    name: 'Y',
     face: face.UP,
     ccw_face: face.DOWN,
     indices: [
@@ -135,6 +146,7 @@ rotate_data[rotation.Y] = {
     ],
 };
 rotate_data[rotation.Z] = {
+    name: 'Z',
     face: face.FRONT,
     ccw_face: face.BACK,
     indices: [
@@ -265,7 +277,9 @@ export const rotate = (cube, rotation) => {
 };
 
 export const parse_rotations = (rotations_str) => {
-    return rotations_str.split(/\s+/).map((rotation_str) => {
+    const valid = Object.keys(rotation).join('');
+    const regex = new RegExp(`[${valid}](?:'|2)?`, 'g');
+    return rotations_str.match(regex).map((rotation_str) => {
         if (rotation_str.length == 0 || rotation_str.length > 2) {
             return null;
         }
@@ -284,6 +298,28 @@ export const parse_rotations = (rotations_str) => {
         }
         return rot;
     }).filter((rotation) => rotation !== null);
+};
+export const rotations_to_string = (rotations) => {
+    return rotations.map((rot) => {
+        let real_rotation = rot;
+        let suffix = '';
+        if (real_rotation === 0) {
+            return '?';
+        }
+        if (real_rotation < 0) {
+            real_rotation *= -1;
+            suffix = '\'';
+        }
+        else if (real_rotation % 2 === 0) {
+            real_rotation /= 2;
+            suffix = '2';
+        }
+        const data = rotate_data[real_rotation];
+        if (data === undefined) {
+            return '?';
+        }
+        return data.name + suffix;
+    }).join(' ');
 };
 
 // Private functions
