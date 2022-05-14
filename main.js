@@ -1,10 +1,19 @@
 import * as rubik from './modules/rubik.js';
+import * as solver from './modules/solver.js';
 
 const main = () => {
     const cube = rubik.create();
     console.log(rubik.to_string(cube));
     const grid = create_grid(cube);
     setup_rotation_input_area(grid);
+    document.getElementById('solve_button').addEventListener('click', () => {
+        const solution = solver.solve(grid.cube);
+        if (solution) {
+            alert('Solved! ' + rubik.rotations_to_string(solution));
+        } else {
+            alert('Not solved!');
+        }
+    });
 }
 
 const update_grid = (grid) => {

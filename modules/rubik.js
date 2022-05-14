@@ -190,11 +190,17 @@ export const create = () => {
     ];
 };
 
+// Resets an existing cube to its initial state
 export const reset = (cube) => {
     const new_cube = create();
     new_cube.forEach((elem, i) => {
         cube[i] = elem;
     });
+};
+
+// Returns whether two cubes are equal
+export const is_equal = (c1, c2) => {
+    return c1.every((elem, i) => elem === c2[i]);
 };
 
 // Copy a cube
@@ -331,6 +337,17 @@ export const rotations_to_string = (rotations) => {
         }
         return data.name + suffix;
     }).join(' ');
+};
+
+// Convert a rotation to its base form (e.g. R' => R, R2 => R)
+export const base_rotation = (rot) => {
+    if (rot < 0) {
+        rot *= -1;
+    }
+    if (rot % 2 === 0) {
+        rot /= 2;
+    }
+    return rot;
 };
 
 // Private functions
