@@ -9,12 +9,12 @@ export const face = {
     DOWN: 5,
 };
 export const color = {
-    GREEN: 0,
-    BLUE: 1,
-    RED: 2,
-    ORANGE: 3,
-    YELLOW: 4,
-    WHITE: 5,
+    WHITE: 0,
+    ORANGE: 1,
+    GREEN: 2,
+    RED: 3,
+    BLUE: 4,
+    YELLOW: 5,
 };
 export const rotation = {
     F: 1,
@@ -128,12 +128,12 @@ export const create = () => {
     // B => indices 36-44
     // D => indices 45-53
     return [
-        ...Array(9).fill(color.GREEN),
-        ...Array(9).fill(color.BLUE),
-        ...Array(9).fill(color.RED),
-        ...Array(9).fill(color.ORANGE),
-        ...Array(9).fill(color.YELLOW),
         ...Array(9).fill(color.WHITE),
+        ...Array(9).fill(color.ORANGE),
+        ...Array(9).fill(color.GREEN),
+        ...Array(9).fill(color.RED),
+        ...Array(9).fill(color.BLUE),
+        ...Array(9).fill(color.YELLOW),
     ];
 };
 
