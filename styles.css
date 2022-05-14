@@ -1,0 +1,37 @@
+
+table {
+    border-collapse: collapse;
+    margin: 0px;
+    padding: 0px;
+}
+td {
+    margin: 0px;
+    padding: 0px;
+}
+
+td.cubeCell {
+    width: 40px;
+    height: 40px;
+}
+button.cubeButton {
+    width: 100%;
+    height: 100%;
+}
+button.color0 {
+    background-color: green;
+}
+button.color1 {
+    background-color: blue;
+}
+button.color2 {
+    background-color: red;
+}
+button.color3 {
+    background-color: orange;
+}
+button.color4 {
+    background-color: yellow;
+}
+button.color5 {
+    background-color: white;
+}
