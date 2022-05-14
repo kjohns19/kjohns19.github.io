@@ -63,7 +63,7 @@ const create_grid = (cube) => {
 const create_rotation_buttons = (grid) => {
     const table = document.createElement('table');
     table.className = 'buttons';
-    const rotations = ['R', 'L', 'F', 'B', 'U', 'D', 'M', 'E', 'S'];
+    const rotations = ['R', 'L', 'F', 'B', 'U', 'D', 'M', 'E', 'S', 'X', 'Y', 'Z'];
     for (let i = 0; i < 3; i++) {
         const row = table.insertRow();
         rotations.forEach((rotation) => {

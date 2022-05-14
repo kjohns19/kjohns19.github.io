@@ -26,13 +26,23 @@ export const rotation = {
     M: 7,
     E: 8,
     S: 9,
-    // TODO
-    // X: 10,
-    // Y: 11,
-    // Z: 12,
+    X: 10,
+    Y: 11,
+    Z: 12,
 };
 
 // Private constants
+
+const range = (a, b, step) => {
+    if (step === undefined) {
+        step = (b >= a) ? 1 : -1;
+    }
+    const length = Math.ceil((b - a) / step);
+    if (length <= 0) {
+        return [];
+    }
+    return Array.from({length: length}, (_, i) => a + i * step);
+};
 
 const off = {
     u: face.UP * 9,
@@ -87,24 +97,55 @@ rotate_data[rotation.U] = {
     ],
 };
 rotate_data[rotation.M] = {
-    face: null,
     indices: [
         off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
         off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
     ],
 };
 rotate_data[rotation.E] = {
-    face: null,
     indices: [
         off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
         off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
     ],
 };
 rotate_data[rotation.S] = {
-    face: null,
     indices: [
         off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
         off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
+    ],
+};
+rotate_data[rotation.X] = {
+    face: face.RIGHT,
+    ccw_face: face.LEFT,
+    indices: [
+        ...range(off.u + 0, off.u + 9),
+        ...range(off.f + 0, off.f + 9),
+        ...range(off.d + 0, off.d + 9),
+        ...range(off.b + 8, off.b - 1),
+    ],
+};
+rotate_data[rotation.Y] = {
+    face: face.UP,
+    ccw_face: face.DOWN,
+    indices: [
+        ...range(off.l + 0, off.l + 9),
+        ...range(off.f + 0, off.f + 9),
+        ...range(off.r + 0, off.r + 9),
+        ...range(off.b + 0, off.b + 9),
+    ],
+};
+rotate_data[rotation.Z] = {
+    face: face.FRONT,
+    ccw_face: face.BACK,
+    indices: [
+        ...range(off.l + 0, off.l + 9),
+        ...[off.u + 2, off.u + 5, off.u + 8,
+            off.u + 1, off.u + 4, off.u + 7,
+            off.u + 0, off.u + 3, off.u + 6],
+        ...range(off.r + 8, off.r - 1),
+        ...[off.d + 6, off.d + 3, off.d + 0,
+            off.d + 7, off.d + 4, off.d + 1,
+            off.d + 8, off.d + 5, off.d + 2],
     ],
 };
 
@@ -144,12 +185,6 @@ export const copy = (cube) => {
 
 // Convert a cube to a string
 export const to_string = (cube) => {
-    let f = face.FRONT * 9;
-    let b = face.BACK * 9;
-    let r = face.RIGHT * 9;
-    let l = face.LEFT * 9;
-    let d = face.DOWN * 9;
-    let u = face.UP * 9;
     //       U U U
     //       U U U
     //       U U U
@@ -199,14 +234,19 @@ export const rotate = (cube, rotation) => {
     const ccw = (rotation < 0);
     const abs_rotation = Math.abs(rotation);
     const data = rotate_data[abs_rotation];
-    if (data.face !== null) {
+    if (data.face !== undefined) {
         rotate_face(cube, data.face, ccw);
+    }
+    if (data.ccw_face !== undefined) {
+        rotate_face(cube, data.ccw_face, !ccw);
     }
     const cube_data = data.indices.map(i => cube[i]);
 
-    const offset = ccw ? 9 : 3;
-    for (let i = 0; i < 12; i++) {
-        cube[data.indices[(i + offset) % 12]] = cube_data[i];
+    const len = data.indices.length;
+    const stride = len / 4;
+    const offset = ccw ? stride * 3 : stride;
+    for (let i = 0; i < len; i++) {
+        cube[data.indices[(i + offset) % len]] = cube_data[i];
     }
 };
 
