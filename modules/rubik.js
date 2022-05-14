@@ -67,7 +67,7 @@ rotate_data[rotation.B] = {
     face: face.BACK,
     indices: [
         off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
-        off.d + 8, off.d + 7, off.d + 6, off.r + 8, off.r + 5, off.r + 2,
+        off.d + 6, off.d + 7, off.d + 8, off.r + 8, off.r + 5, off.r + 2,
     ],
 };
 rotate_data[rotation.R] = {
