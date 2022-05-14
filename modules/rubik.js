@@ -231,8 +231,12 @@ export const set_at = (cube, face, row, col, value) => {
 
 // Apply a rotation to the cube
 export const rotate = (cube, rotation) => {
+    if (rotation === 0) {
+        return;
+    }
+
     // Double the rotation value to rotate twice (e.g. 2*rotation.F)
-    if (rotation % 2 == 0) {
+    if (rotation % 2 === 0) {
         rotate(cube, rotation / 2);
         rotate(cube, rotation / 2);
         return
@@ -241,6 +245,9 @@ export const rotate = (cube, rotation) => {
     const ccw = (rotation < 0);
     const abs_rotation = Math.abs(rotation);
     const data = rotate_data[abs_rotation];
+    if (data === undefined) {
+        return;
+    }
     if (data.face !== undefined) {
         rotate_face(cube, data.face, ccw);
     }
