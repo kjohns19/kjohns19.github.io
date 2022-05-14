@@ -257,6 +257,28 @@ export const rotate = (cube, rotation) => {
     }
 };
 
+export const parse_rotations = (rotations_str) => {
+    return rotations_str.split(/\s+/).map((rotation_str) => {
+        if (rotation_str.length == 0 || rotation_str.length > 2) {
+            return null;
+        }
+        let rot = rotation[rotation_str[0]];
+        if (rot === undefined) {
+            return null;
+        }
+        if (rotation_str.length == 2) {
+            if (rotation_str[1] == '\'') {
+                rot *= -1;
+            } else if (rotation_str[1] == '2') {
+                rot *= 2;
+            } else {
+                return null;
+            }
+        }
+        return rot;
+    }).filter((rotation) => rotation !== null);
+};
+
 // Private functions
 
 // Rotate a face clockwise or counter-clockwise

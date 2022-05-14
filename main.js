@@ -4,6 +4,7 @@ const main = () => {
     const cube = rubik.create();
     console.log(rubik.to_string(cube));
     const grid = create_grid(cube);
+    create_rotation_input(grid);
     create_rotation_buttons(grid);
 }
 
@@ -58,6 +59,24 @@ const create_grid = (cube) => {
 
     update_grid(grid);
     return grid;
+};
+
+const create_rotation_input = (grid) => {
+    const input = document.createElement('input');
+    input.type = 'text';
+    document.body.appendChild(input);
+
+    const button = document.createElement('button');
+    button.innerHTML = 'Rotate';
+    button.addEventListener('click', () => {
+        const rotations = rubik.parse_rotations(input.value);
+        console.log(rotations);
+        for (const rotation of rotations) {
+            rubik.rotate(grid.cube, rotation);
+        };
+        update_grid(grid);
+    });
+    document.body.appendChild(button);
 };
 
 const create_rotation_buttons = (grid) => {
