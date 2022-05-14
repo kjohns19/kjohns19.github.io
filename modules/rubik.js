@@ -18,17 +18,17 @@ export const color = {
 };
 export const rotation = {
     F: 1,
-    B: 2,
-    R: 3,
-    L: 4,
-    D: 5,
-    U: 6,
-    M: 7,
-    E: 8,
-    S: 9,
-    X: 10,
-    Y: 11,
-    Z: 12,
+    B: 3,
+    R: 5,
+    L: 7,
+    D: 9,
+    U: 11,
+    M: 13,
+    E: 15,
+    S: 17,
+    X: 19,
+    Y: 21,
+    Z: 23,
 };
 
 // Private constants
@@ -231,6 +231,13 @@ export const set_at = (cube, face, row, col, value) => {
 
 // Apply a rotation to the cube
 export const rotate = (cube, rotation) => {
+    // Double the rotation value to rotate twice (e.g. 2*rotation.F)
+    if (rotation % 2 == 0) {
+        rotate(cube, rotation / 2);
+        rotate(cube, rotation / 2);
+        return
+    }
+    // Negate the rotation to rotate counter-clockwise (e.g. -rotation.F)
     const ccw = (rotation < 0);
     const abs_rotation = Math.abs(rotation);
     const data = rotate_data[abs_rotation];

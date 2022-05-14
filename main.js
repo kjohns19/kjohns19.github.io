@@ -64,7 +64,8 @@ const create_rotation_buttons = (grid) => {
     const table = document.createElement('table');
     table.className = 'buttons';
     const rotations = ['R', 'L', 'F', 'B', 'U', 'D', 'M', 'E', 'S', 'X', 'Y', 'Z'];
-    for (let i = 0; i < 3; i++) {
+    const mults = [1, -1, 2];
+    mults.forEach((mult, i) => {
         const row = table.insertRow();
         rotations.forEach((rotation) => {
             const cell = row.insertCell();
@@ -77,16 +78,12 @@ const create_rotation_buttons = (grid) => {
                 button.innerHTML += '2';
             }
             button.addEventListener('click', () => {
-                const times = (i === 2) ? 2 : 1;
-                const mult = (i === 1) ? -1 : 1;
-                for (let j = 0; j < times; j++) {
-                    rubik.rotate(grid.cube, mult * rubik.rotation[rotation]);
-                }
+                rubik.rotate(grid.cube, mult * rubik.rotation[rotation]);
                 update_grid(grid);
             });
             cell.appendChild(button);
         })
-    }
+    });
     document.body.appendChild(table);
 };
 
