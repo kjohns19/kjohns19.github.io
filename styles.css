@@ -17,22 +17,28 @@ button.cubeButton {
     height: 100%;
 }
 button.color0 {
-    background-color: white;
+    background-color: gray;
 }
 button.color1 {
-    background-color: orange;
+    background-color: white;
 }
 button.color2 {
-    background-color: green;
+    background-color: orange;
 }
 button.color3 {
-    background-color: red;
+    background-color: green;
 }
 button.color4 {
-    background-color: blue;
+    background-color: red;
 }
 button.color5 {
+    background-color: blue;
+}
+button.color6 {
     background-color: yellow;
+}
+button.selected {
+    border: 5px solid black;
 }
 
 button.rotation {

@@ -9,13 +9,17 @@ export const face = {
     DOWN: 5,
 };
 export const color = {
-    WHITE: 0,
-    ORANGE: 1,
-    GREEN: 2,
-    RED: 3,
-    BLUE: 4,
-    YELLOW: 5,
+    DONT_CARE: 0,
+    WHITE: 1,
+    ORANGE: 2,
+    GREEN: 3,
+    RED: 4,
+    BLUE: 5,
+    YELLOW: 6,
 };
+export const color_names = [
+    'Don\'t Care', 'White', 'Orange', 'Green', 'Red', 'Blue', 'Yellow'
+];
 export const rotation = {
     F: 1,
     B: 3,
@@ -197,6 +201,11 @@ export const reset = (cube) => {
         cube[i] = elem;
     });
 };
+
+// Clear a cube
+export const clear = (cube) => {
+    cube.fill(color.DONT_CARE);
+}
 
 // Returns whether two cubes are equal
 export const is_equal = (c1, c2) => {

@@ -4,8 +4,9 @@ import * as solver from './modules/solver.js';
 const main = () => {
     const cube = rubik.create();
     console.log(rubik.to_string(cube));
-    const grid = create_grid(cube);
-    setup_rotation_input_area(grid);
+    const color_select = create_color_selector();
+    const grid = create_grid(cube, color_select);
+    setup_input_area(grid);
     document.getElementById('solve_button').addEventListener('click', () => {
         const solution = solver.solve(grid.cube);
         if (solution) {
@@ -16,13 +17,51 @@ const main = () => {
     });
 }
 
+const create_color_selector = () => {
+    const color_select = {
+        color: rubik.color.DONT_CARE
+    };
+
+    const color_select_area = document.getElementById('color_select_area');
+    const table = document.createElement('table');
+    const row = table.insertRow();
+    const buttons = rubik.color_names.map((name, value) => {
+        const cell = row.insertCell();
+        cell.className = 'cube cubeCell';
+        const button = document.createElement('button');
+        button.title = name;
+        cell.appendChild(button);
+        return button;
+    });
+
+    const select = (select_idx) => {
+        buttons.forEach((button, idx) => {
+            button.className = 'cubeButton color' + idx;
+            if (idx === select_idx) {
+                button.className += ' selected';
+            }
+        });
+        color_select.color = select_idx;
+    };
+    buttons.forEach((button, idx) => {
+        button.addEventListener('click', () => {
+            select(idx);
+        });
+    });
+    select(0);
+
+    color_select_area.appendChild(table);
+
+    return color_select;
+};
+
 const update_grid = (grid) => {
     grid.cube.forEach((value, i) => {
         grid.buttons[i].className = 'cubeButton color' + value;
     });
 };
 
-const create_grid = (cube) => {
+const create_grid = (cube, color_select) => {
     const grid = {
         buttons: [],
         cube: cube
@@ -42,7 +81,7 @@ const create_grid = (cube) => {
                 grid.buttons.push(button);
                 cell.appendChild(button);
                 button.addEventListener('click', () => {
-                    cube[index] = (cube[index] + 1) % 6;
+                    cube[index] = color_select.color;
                     update_grid(grid);
                 });
             }
@@ -69,6 +108,18 @@ const create_grid = (cube) => {
     return grid;
 };
 
+const setup_input_area = (grid) => {
+    document.getElementById('reset_button').addEventListener('click', () => {
+        rubik.reset(grid.cube);
+        update_grid(grid);
+    });
+    document.getElementById('clear_button').addEventListener('click', () => {
+        rubik.clear(grid.cube);
+        update_grid(grid);
+    });
+}
+
+// Currently unused
 const setup_rotation_input_area = (grid) => {
     const input = document.getElementById('rotate_input');
     const apply = () => {
