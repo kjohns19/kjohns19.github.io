@@ -6,6 +6,8 @@ export const solve = (cube, allowed_rotations) => {
         return [];
     }
 
+    const copy = rubik.copy(cube);
+
     // Double rotations get tried first
     const sorted_rotations = [...allowed_rotations];
     sorted_rotations.sort();
@@ -15,6 +17,9 @@ export const solve = (cube, allowed_rotations) => {
     if (solution !== null) {
         solution.reverse();
     }
+
+    // Restore the initial state
+    rubik.copy_into(copy, cube);
     return solution;
 };
 
