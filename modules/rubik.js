@@ -197,9 +197,7 @@ export const create = () => {
 // Resets an existing cube to its initial state
 export const reset = (cube) => {
     const new_cube = create();
-    new_cube.forEach((elem, i) => {
-        cube[i] = elem;
-    });
+    copy_into(new_cube, cube);
 };
 
 // Clear a cube
@@ -215,6 +213,12 @@ export const is_equal = (c1, c2) => {
 // Copy a cube
 export const copy = (cube) => {
     return [...cube];
+};
+
+export const copy_into = (src, dest) => {
+    src.forEach((elem, i) => {
+        dest[i] = elem;
+    });
 };
 
 // Convert a cube to a string

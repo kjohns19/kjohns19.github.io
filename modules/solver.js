@@ -1,34 +1,17 @@
 import * as rubik from './rubik.js';
 
-export const solve = (cube) => {
+export const solve = (cube, allowed_rotations) => {
     const solved_cube = rubik.create();
     if (rubik.is_equal(cube, solved_cube)) {
         return [];
     }
 
     // Double rotations get tried first
-    const allowed_rotations = [
-        rubik.rotation.F * 2,
-        rubik.rotation.F,
-        rubik.rotation.F * -1,
-        rubik.rotation.B * 2,
-        rubik.rotation.B,
-        rubik.rotation.B * -1,
-        rubik.rotation.R * 2,
-        rubik.rotation.R,
-        rubik.rotation.R * -1,
-        rubik.rotation.L * 2,
-        rubik.rotation.L,
-        rubik.rotation.L * -1,
-        rubik.rotation.D * 2,
-        rubik.rotation.D,
-        rubik.rotation.D * -1,
-        rubik.rotation.U * 2,
-        rubik.rotation.U,
-        rubik.rotation.U * -1,
-    ];
+    const sorted_rotations = [...allowed_rotations];
+    sorted_rotations.sort();
+    sorted_rotations.reverse();
 
-    const solution = solve_impl(cube, solved_cube, allowed_rotations, null, null, null, 6);
+    const solution = solve_impl(cube, solved_cube, sorted_rotations, null, null, null, 6);
     if (solution !== null) {
         solution.reverse();
     }

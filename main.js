@@ -7,14 +7,7 @@ const main = () => {
     const color_select = create_color_selector();
     const grid = create_grid(cube, color_select);
     setup_input_area(grid);
-    document.getElementById('solve_button').addEventListener('click', () => {
-        const solution = solver.solve(grid.cube);
-        if (solution) {
-            alert('Solved! ' + rubik.rotations_to_string(solution));
-        } else {
-            alert('Not solved!');
-        }
-    });
+    setup_solve_area(grid);
 }
 
 const create_color_selector = () => {
@@ -118,6 +111,56 @@ const setup_input_area = (grid) => {
         update_grid(grid);
     });
 }
+
+const setup_solve_area = (grid) => {
+    const table = document.createElement('table');
+
+    const allowed_rotations_set = {};
+
+    const rotations = ['R', 'L', 'F', 'B', 'U', 'D'];
+    const mults = [1, -1, 2];
+    mults.forEach((mult, i) => {
+        const row = table.insertRow();
+        rotations.forEach((rotation) => {
+            const value = rubik.rotation[rotation] * mult;
+            const cell = row.insertCell();
+            const div = document.createElement('div');
+            const button = document.createElement('input');
+            button.type = 'checkbox';
+            button.addEventListener('click', () => {
+                allowed_rotations_set[value] = button.checked;
+            });
+            div.appendChild(button);
+
+            const label = document.createElement('label');
+            label.innerHTML = rotation;
+            if (i === 1) {
+                label.innerHTML += '\'';
+            } else if (i === 2) {
+                label.innerHTML += '2';
+            }
+            div.appendChild(label);
+
+            cell.appendChild(div);
+        })
+    });
+
+    document.getElementById('allowed_rotations_area').appendChild(table);
+
+    document.getElementById('solve_button').addEventListener('click', () => {
+        console.log('Entries: ' + Object.entries(allowed_rotations_set));
+        const allowed_rotations = Object.entries(allowed_rotations_set)
+            .filter((a) => a[1])
+            .map((a) => a[0]);
+        console.log('Allowed: ' + allowed_rotations);
+        const solution = solver.solve(grid.cube, allowed_rotations);
+        if (solution) {
+            alert('Solved! ' + rubik.rotations_to_string(solution));
+        } else {
+            alert('Not solved!');
+        }
+    });
+};
 
 // Currently unused
 const setup_rotation_input_area = (grid) => {
