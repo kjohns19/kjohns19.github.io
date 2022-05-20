@@ -330,27 +330,27 @@ export const parse_rotations = (rotations_str) => {
     }).filter((rotation) => rotation !== null);
 };
 export const rotations_to_string = (rotations) => {
-    return rotations.map((rot) => {
-        let real_rotation = rot;
-        let suffix = '';
-        if (real_rotation === 0) {
-            return '?';
-        }
-        if (real_rotation < 0) {
-            real_rotation *= -1;
-            suffix = '\'';
-        }
-        else if (real_rotation % 2 === 0) {
-            real_rotation /= 2;
-            suffix = '2';
-        }
-        const data = rotate_data[real_rotation];
-        if (data === undefined) {
-            return '?';
-        }
-        return data.name + suffix;
-    }).join(' ');
+    return rotations.map(rotation_to_string).join(' ');
 };
+export const rotation_to_string = (rotation) => {
+    let suffix = '';
+    if (rotation === 0) {
+        return '?';
+    }
+    if (rotation < 0) {
+        rotation *= -1;
+        suffix = '\'';
+    }
+    else if (rotation % 2 === 0) {
+        rotation /= 2;
+        suffix = '2';
+    }
+    const data = rotate_data[rotation];
+    if (data === undefined) {
+        return '?';
+    }
+    return data.name + suffix;
+}
 
 // Convert a rotation to its base form (e.g. R' => R, R2 => R)
 export const base_rotation = (rot) => {
