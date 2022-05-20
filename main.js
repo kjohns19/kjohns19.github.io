@@ -151,7 +151,7 @@ const setup_solve_area = (grid) => {
         console.log('Entries: ' + Object.entries(allowed_rotations_set));
         const allowed_rotations = Object.entries(allowed_rotations_set)
             .filter((a) => a[1])
-            .map((a) => a[0]);
+            .map((a) => parseInt(a[0]));
         console.log('Allowed: ' + allowed_rotations);
         const solution = solver.solve(grid.cube, allowed_rotations);
         if (solution) {
