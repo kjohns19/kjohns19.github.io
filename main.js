@@ -127,6 +127,8 @@ const setup_solve_area = (grid) => {
             const div = document.createElement('div');
             const button = document.createElement('input');
             button.type = 'checkbox';
+            button.checked = true;
+            allowed_rotations_set[value] = true;
             button.addEventListener('click', () => {
                 allowed_rotations_set[value] = button.checked;
             });
