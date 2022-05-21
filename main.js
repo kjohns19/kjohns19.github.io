@@ -110,6 +110,24 @@ const setup_input_area = (grid) => {
         rubik.clear(grid.cube);
         update_grid(grid);
     });
+
+    const table = document.createElement('table');
+    table.className = 'buttons';
+    for (const rotation_row of create_rotations_grid()) {
+        const row = table.insertRow();
+        for (const rotation of rotation_row) {
+            const cell = row.insertCell();
+            const button = document.createElement('button');
+            button.className = 'rotation';
+            button.innerHTML = rubik.rotation_to_string(rotation);
+            button.addEventListener('click', () => {
+                rubik.rotate(grid.cube, rotation);
+                update_grid(grid);
+            });
+            cell.appendChild(button);
+        }
+    }
+    document.getElementById('input_area').appendChild(table);
 }
 
 const setup_solve_area = (grid) => {
@@ -117,35 +135,27 @@ const setup_solve_area = (grid) => {
 
     const allowed_rotations_set = {};
 
-    const rotations = ['R', 'L', 'F', 'B', 'U', 'D'];
-    const mults = [1, -1, 2];
-    mults.forEach((mult, i) => {
+    for (const rotation_row of create_rotations_grid()) {
         const row = table.insertRow();
-        rotations.forEach((rotation) => {
-            const value = rubik.rotation[rotation] * mult;
+        for (const rotation of rotation_row) {
             const cell = row.insertCell();
             const div = document.createElement('div');
             const button = document.createElement('input');
             button.type = 'checkbox';
             button.checked = true;
-            allowed_rotations_set[value] = true;
+            allowed_rotations_set[rotation] = true;
             button.addEventListener('click', () => {
-                allowed_rotations_set[value] = button.checked;
+                allowed_rotations_set[rotation] = button.checked;
             });
             div.appendChild(button);
 
             const label = document.createElement('label');
-            label.innerHTML = rotation;
-            if (i === 1) {
-                label.innerHTML += '\'';
-            } else if (i === 2) {
-                label.innerHTML += '2';
-            }
+            label.innerHTML = rubik.rotation_to_string(rotation);
             div.appendChild(label);
 
             cell.appendChild(div);
-        })
-    });
+        }
+    }
 
     document.getElementById('allowed_rotations_area').appendChild(table);
 
@@ -164,53 +174,10 @@ const setup_solve_area = (grid) => {
     });
 };
 
-// Currently unused
-const setup_rotation_input_area = (grid) => {
-    const input = document.getElementById('rotate_input');
-    const apply = () => {
-        rubik.reset(grid.cube);
-        const rotations = rubik.parse_rotations(input.value);
-        const rotations_str = rubik.rotations_to_string(rotations);
-        for (const rotation of rotations) {
-            rubik.rotate(grid.cube, rotation);
-        };
-        update_grid(grid);
-    };
-    input.addEventListener('input', apply);
-
-    document.getElementById('rotate_normalize_button').addEventListener('click', () => {
-        const rotations = rubik.parse_rotations(input.value);
-        const rotations_str = rubik.rotations_to_string(rotations);
-        input.value = rotations_str;
-    });
-
-    const table = document.createElement('table');
-    table.className = 'buttons';
-    const rotations = ['R', 'L', 'F', 'B', 'U', 'D', 'M', 'E', 'S', 'X', 'Y', 'Z'];
+const create_rotations_grid = () => {
+    const rotations = ['R', 'L', 'F', 'B', 'U', 'D'];
     const mults = [1, -1, 2];
-    mults.forEach((mult, i) => {
-        const row = table.insertRow();
-        rotations.forEach((rotation) => {
-            const cell = row.insertCell();
-            const button = document.createElement('button');
-            button.className = 'rotation';
-            button.innerHTML = rotation;
-            if (i === 1) {
-                button.innerHTML += '\'';
-            } else if (i === 2) {
-                button.innerHTML += '2';
-            }
-            button.addEventListener('click', () => {
-                if (input.value) {
-                    input.value += ' ';
-                }
-                input.value += button.innerHTML;
-                apply();
-            });
-            cell.appendChild(button);
-        })
-    });
-    document.getElementById('input_area').appendChild(table);
+    return mults.map((mult) => rotations.map((rotation) => rubik.rotation[rotation] * mult));
 };
 
 main();
