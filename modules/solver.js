@@ -2,7 +2,7 @@ import * as rubik from './rubik.js';
 
 export const solve = (cube, allowed_rotations) => {
     const solved_cube = rubik.create();
-    if (rubik.is_equal(cube, solved_cube)) {
+    if (rubik.is_equal_with_ignored(cube, solved_cube)) {
         return [];
     }
 
@@ -46,7 +46,7 @@ const solve_impl = (cube, solved_cube, allowed_rotations, allowed_rotations_set,
         // The cube is solved if it's currently in a solved state
         // Or if we can continue making moves to get it to a solved state
         const solved = (
-            rubik.is_equal(cube, solved_cube) ||
+            rubik.is_equal_with_ignored(cube, solved_cube) ||
             solve_impl(cube, solved_cube, allowed_rotations, allowed_rotations_set, moves,
                        max_depth - 1));
         if (solved) {

@@ -209,6 +209,11 @@ export const clear = (cube) => {
 export const is_equal = (c1, c2) => {
     return c1.every((elem, i) => elem === c2[i]);
 };
+export const is_equal_with_ignored = (c1, c2) => {
+    return c1.every((elem, i) => elem === c2[i] ||
+                                 elem === color.DONT_CARE ||
+                                 c2[i] === color.DONT_CARE);
+};
 
 // Copy a cube
 export const copy = (cube) => {
