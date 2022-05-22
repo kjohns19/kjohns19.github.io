@@ -182,6 +182,7 @@ const setup_solve_area = (grid) => {
     document.getElementById('allow_none_button').addEventListener('click', () => set_all(false));
 
     const max_moves_input = document.getElementById('max_moves');
+    const solution_text = document.getElementById('solution_text');
 
     document.getElementById('solve_button').addEventListener('click', () => {
         const allowed_rotations = Object.entries(allowed_rotations_set)
@@ -190,9 +191,9 @@ const setup_solve_area = (grid) => {
         const max_moves = max_moves_input.value;
         const solution = solver.solve(grid.cube, allowed_rotations, max_moves);
         if (solution) {
-            alert('Solved! ' + rubik.rotations_to_string(solution));
+            solution_text.value = rubik.rotations_to_string(solution);
         } else {
-            alert('Not solved!');
+            solution_text.value = 'No solution!';
         }
     });
 };
