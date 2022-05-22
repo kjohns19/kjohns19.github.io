@@ -13,33 +13,22 @@ export const solve = (cube, allowed_rotations, max_moves) => {
     sorted_rotations.sort();
     sorted_rotations.reverse();
 
-    const allowed_rotations_set = {};
-    for (const rotation of sorted_rotations) {
-        allowed_rotations_set[rotation] = 1;
-    }
-
+    const move_set = construct_move_set(sorted_rotations);
     const moves = [];
-    const solved = solve_impl(cube, solved_cube, sorted_rotations, allowed_rotations_set, moves,
-                              max_moves);
+    const solved = solve_impl(cube, solved_cube, move_set, moves, max_moves);
 
     // Restore the initial state
     rubik.copy_into(copy, cube);
     return solved ? moves : null;
 };
 
-const solve_impl = (cube, solved_cube, allowed_rotations, allowed_rotations_set, moves,
-                    max_depth) => {
+const solve_impl = (cube, solved_cube, move_set, moves, max_depth) => {
     // Base case - no moves left
     if (max_depth === 0) {
         return false;
     }
 
-    for (const rotation of allowed_rotations) {
-        // Skip move if it isn't valid
-        if (!move_allowed(rotation, moves, allowed_rotations_set)) {
-            continue;
-        }
-
+    for (const rotation of move_set.moves) {
         // Make the move
         rubik.rotate(cube, rotation);
         moves.push(rotation);
@@ -48,8 +37,8 @@ const solve_impl = (cube, solved_cube, allowed_rotations, allowed_rotations_set,
         // Or if we can continue making moves to get it to a solved state
         const solved = (
             rubik.is_equal_with_ignored(cube, solved_cube) ||
-            solve_impl(cube, solved_cube, allowed_rotations, allowed_rotations_set, moves,
-                       max_depth - 1));
+            solve_impl(cube, solved_cube, move_set.next[rotation], moves, max_depth - 1)
+        );
         if (solved) {
             // The moves array contains the solution
             return true;
@@ -62,6 +51,53 @@ const solve_impl = (cube, solved_cube, allowed_rotations, allowed_rotations_set,
 
     // No solution
     return false;
+};
+
+const construct_move_set = (allowed_rotations) => {
+    const allowed_rotations_set = {};
+    for (const rotation of allowed_rotations) {
+        allowed_rotations_set[rotation] = 1;
+    }
+
+    const move_set = {};
+
+    const get_or_default = (obj, elem, def) => {
+        const value = obj[elem];
+        if (value !== undefined) {
+            return value;
+        }
+        obj[elem] = def;
+        return def;
+    };
+    const get_move_data = (move1, move2, move3) => {
+        const d1 = get_or_default(move_set, move1, {});
+        const d2 = get_or_default(d1, move2, {});
+        const d3 = get_or_default(d2, move3, {moves: [], next: {}});
+        return d3;
+    };
+
+    const construct_impl = (moves, max_depth) => {
+        if (max_depth === 0) {
+            return;
+        }
+        for (const rotation of allowed_rotations) {
+            if (!move_allowed(rotation, moves, allowed_rotations_set))
+                continue;
+            const move1 = moves.length > 2 ? moves[moves.length - 3] : null;
+            const move2 = moves.length > 1 ? moves[moves.length - 2] : null;
+            const move3 = moves.length > 0 ? moves[moves.length - 1] : null;
+            const data = get_move_data(move1, move2, move3);
+            data.moves.push(rotation);
+            data.next[rotation] = get_move_data(move2, move3, rotation);
+
+            moves.push(rotation);
+            construct_impl(moves, max_depth - 1);
+            moves.pop();
+        }
+    };
+
+    construct_impl([], 4);
+    return get_move_data(null, null, null);
 };
 
 const move_allowed = (rotation, moves, allowed_rotations) => {
