@@ -145,6 +145,15 @@ const setup_solve_area = (grid) => {
 
     const allowed_rotations_set = {};
 
+    const allowed_rotations_data = [];
+
+    const set_all = (value) => {
+        for (const data of allowed_rotations_data) {
+            data.button.checked = value;
+            allowed_rotations_set[data.rotation] = value;
+        };
+    }
+
     for (const rotation_row of create_rotations_grid()) {
         const row = table.insertRow();
         for (const rotation of rotation_row) {
@@ -152,12 +161,11 @@ const setup_solve_area = (grid) => {
             const div = document.createElement('div');
             const button = document.createElement('input');
             button.type = 'checkbox';
-            button.checked = true;
-            allowed_rotations_set[rotation] = true;
             button.addEventListener('click', () => {
                 allowed_rotations_set[rotation] = button.checked;
             });
             div.appendChild(button);
+            allowed_rotations_data.push({button: button, rotation: rotation});
 
             const label = document.createElement('label');
             label.innerHTML = rubik.rotation_to_string(rotation);
@@ -166,8 +174,12 @@ const setup_solve_area = (grid) => {
             cell.appendChild(div);
         }
     }
-
     document.getElementById('allowed_rotations_area').appendChild(table);
+
+    set_all(true);
+
+    document.getElementById('allow_all_button').addEventListener('click', () => set_all(true));
+    document.getElementById('allow_none_button').addEventListener('click', () => set_all(false));
 
     document.getElementById('solve_button').addEventListener('click', () => {
         console.log('Entries: ' + Object.entries(allowed_rotations_set));
