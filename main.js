@@ -123,7 +123,7 @@ const setup_input_area = (grid) => {
 
     const table = document.createElement('table');
     table.className = 'buttons';
-    for (const rotation_row of create_rotations_grid()) {
+    for (const rotation_row of create_rotations_grid(true)) {
         const row = table.insertRow();
         for (const rotation of rotation_row) {
             const cell = row.insertCell();
@@ -154,7 +154,7 @@ const setup_solve_area = (grid) => {
         };
     }
 
-    for (const rotation_row of create_rotations_grid()) {
+    for (const rotation_row of create_rotations_grid(false)) {
         const row = table.insertRow();
         for (const rotation of rotation_row) {
             const cell = row.insertCell();
@@ -200,8 +200,13 @@ const setup_solve_area = (grid) => {
     });
 };
 
-const create_rotations_grid = () => {
+const create_rotations_grid = (xyz) => {
     const rotations = ['R', 'L', 'F', 'B', 'U', 'D'];
+    if (xyz) {
+        rotations.push('X');
+        rotations.push('Y');
+        rotations.push('Z');
+    }
     const mults = [1, -1, 2];
     return mults.map((mult) => rotations.map((rotation) => rubik.rotation[rotation] * mult));
 };
