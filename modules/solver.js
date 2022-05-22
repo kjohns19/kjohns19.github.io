@@ -1,7 +1,7 @@
 import * as rubik from './rubik.js';
 
 export const solve = (cube, allowed_rotations, max_moves) => {
-    const solved_cube = rubik.create();
+    const solved_cube = rubik.create(rubik.get_centers(cube));
     if (rubik.is_equal_with_ignored(cube, solved_cube)) {
         return [];
     }

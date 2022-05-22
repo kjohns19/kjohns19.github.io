@@ -168,7 +168,7 @@ rotate_data[rotation.Z] = {
 // Public functions
 
 // Create a cube
-export const create = () => {
+export const create = (centers) => {
     //             U00 U01 U02
     //             U10 U11 U12
     //             U20 U21 U22
@@ -184,13 +184,16 @@ export const create = () => {
     // R => indices 27-35
     // B => indices 36-44
     // D => indices 45-53
+    if (centers === undefined) {
+        centers = [color.WHITE, color.ORANGE, color.GREEN, color.RED, color.BLUE, color.YELLOW];
+    }
     return [
-        ...Array(9).fill(color.WHITE),
-        ...Array(9).fill(color.ORANGE),
-        ...Array(9).fill(color.GREEN),
-        ...Array(9).fill(color.RED),
-        ...Array(9).fill(color.BLUE),
-        ...Array(9).fill(color.YELLOW),
+        ...Array(9).fill(centers[0]),
+        ...Array(9).fill(centers[1]),
+        ...Array(9).fill(centers[2]),
+        ...Array(9).fill(centers[3]),
+        ...Array(9).fill(centers[4]),
+        ...Array(9).fill(centers[5]),
     ];
 };
 
@@ -271,6 +274,11 @@ export const get_at = (cube, face, row, col) => {
 export const set_at = (cube, face, row, col, value) => {
     cube[face * 3 * 3 + row * 3 + col] = value;
 }
+
+// Get the center colors of a cube
+export const get_centers = (cube) => {
+    return ([0, 1, 2, 3, 4, 5]).map((face) => cube[face * 9 + 4]);
+};
 
 // Apply a rotation to the cube
 export const rotate = (cube, rotation) => {
