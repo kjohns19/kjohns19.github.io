@@ -1,6 +1,6 @@
 import * as rubik from './rubik.js';
 
-export const solve = (cube, allowed_rotations) => {
+export const solve = (cube, allowed_rotations, max_moves) => {
     const solved_cube = rubik.create();
     if (rubik.is_equal_with_ignored(cube, solved_cube)) {
         return [];
@@ -19,7 +19,8 @@ export const solve = (cube, allowed_rotations) => {
     }
 
     const moves = [];
-    const solved = solve_impl(cube, solved_cube, sorted_rotations, allowed_rotations_set, moves, 6);
+    const solved = solve_impl(cube, solved_cube, sorted_rotations, allowed_rotations_set, moves,
+                              max_moves);
 
     // Restore the initial state
     rubik.copy_into(copy, cube);
