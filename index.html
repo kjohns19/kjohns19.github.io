@@ -11,8 +11,14 @@
     <div id="input_area">
         <button id="reset_button" title="Reset to solved state">Reset</button>
         <button id="clear_button" title="Clear all tiles (set to &quot;Don't Care&quot;)">Clear</button>
-        <div id="input_area"></div>
-        <div id="color_select_area"></div>
+        <div id="color_select_area">
+            <label>Color select</label>
+        </div>
+        <label for="input_rotations_text">Apply Rotations</label>
+        <br>
+        <input type="text" id="input_rotations_text" placeholder="e.g. L F' R2 ..."/>
+        <button id="apply_button" title="Apply the rotations from the input field">Apply</button>
+        <div id="input_rotations_area"></div>
     </div>
     <div id="solve_area">
         <div id="allowed_rotations_area"></div>

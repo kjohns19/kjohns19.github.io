@@ -22,7 +22,7 @@ const create_color_selector = () => {
         const cell = row.insertCell();
         cell.className = 'cube cubeCell';
         const button = document.createElement('button');
-        button.title = name;
+        button.title = name + '\nClick on a cube tile to change its color';
         cell.appendChild(button);
         return button;
     });
@@ -111,6 +111,16 @@ const setup_input_area = (grid) => {
         update_grid(grid);
     });
 
+    const rotations_input = document.getElementById('input_rotations_text');
+    document.getElementById('apply_button').addEventListener('click', () => {
+        const rotations = rubik.parse_rotations(rotations_input.value);
+        rotations_input.value = rubik.rotations_to_string(rotations);
+        for (const rotation of rotations) {
+            rubik.rotate(grid.cube, rotation);
+        }
+        update_grid(grid);
+    });
+
     const table = document.createElement('table');
     table.className = 'buttons';
     for (const rotation_row of create_rotations_grid()) {
@@ -127,7 +137,7 @@ const setup_input_area = (grid) => {
             cell.appendChild(button);
         }
     }
-    document.getElementById('input_area').appendChild(table);
+    document.getElementById('input_rotations_area').appendChild(table);
 }
 
 const setup_solve_area = (grid) => {
