@@ -189,7 +189,9 @@ const setup_solve_area = (grid) => {
             .filter((a) => a[1])
             .map((a) => parseInt(a[0]));
         const max_moves = max_moves_input.value;
+        console.time('solve');
         const solution = solver.solve(grid.cube, allowed_rotations, max_moves);
+        console.timeEnd('solve');
         if (solution) {
             solution_text.value = rubik.rotations_to_string(solution);
         } else {
