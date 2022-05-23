@@ -31,6 +31,9 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) =>
     if (max_depth === 0) {
         return;
     }
+    if (max_depth >= 5) {
+        console.log('   '.repeat(max_depth) + max_depth);
+    }
 
     for (const rotation of move_set.moves) {
         // Make the move
