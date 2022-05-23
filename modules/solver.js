@@ -14,18 +14,18 @@ export const solve = (cube, allowed_rotations, max_moves) => {
     sorted_rotations.reverse();
 
     const move_set = construct_move_set(sorted_rotations);
-    const moves = [];
-    const solved = solve_impl(cube, solved_cube, move_set, moves, max_moves);
+    const solutions = [];
+    solve_impl(cube, solved_cube, move_set, [], solutions, max_moves);
 
     // Restore the initial state
     rubik.copy_into(copy, cube);
-    return solved ? moves : null;
+    return solutions ? solutions : null;
 };
 
-const solve_impl = (cube, solved_cube, move_set, moves, max_depth) => {
+const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) => {
     // Base case - no moves left
     if (max_depth === 0) {
-        return false;
+        return;
     }
 
     for (const rotation of move_set.moves) {
@@ -33,24 +33,23 @@ const solve_impl = (cube, solved_cube, move_set, moves, max_depth) => {
         rubik.rotate(cube, rotation);
         moves.push(rotation);
 
-        // The cube is solved if it's currently in a solved state
-        // Or if we can continue making moves to get it to a solved state
-        const solved = (
-            rubik.is_equal_with_ignored(cube, solved_cube) ||
-            solve_impl(cube, solved_cube, move_set.next[rotation], moves, max_depth - 1)
-        );
+        // Add the solution if it's solved, otherwise try more moves
+        const solved = rubik.is_equal_with_ignored(cube, solved_cube);
         if (solved) {
-            // The moves array contains the solution
-            return true;
+            solutions.push([...moves]);
+        } else {
+            solve_impl(cube, solved_cube, move_set.next[rotation], moves, solutions, max_depth - 1);
         }
 
-        // Not solved - undo the move
+        // Undo the move to try the next one
         moves.pop();
         rubik.rotate(cube, -rotation);
-    }
 
-    // No solution
-    return false;
+        if (solved) {
+            // No point in trying more moves from here
+            break;
+        }
+    }
 };
 
 const construct_move_set = (allowed_rotations) => {

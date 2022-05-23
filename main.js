@@ -182,7 +182,8 @@ const setup_solve_area = (grid) => {
     document.getElementById('allow_none_button').addEventListener('click', () => set_all(false));
 
     const max_moves_input = document.getElementById('max_moves');
-    const solution_text = document.getElementById('solution_text');
+    const solutions_header = document.getElementById('solutions_header');
+    const solutions_list = document.getElementById('solutions_list');
 
     document.getElementById('solve_button').addEventListener('click', () => {
         const allowed_rotations = Object.entries(allowed_rotations_set)
@@ -190,12 +191,23 @@ const setup_solve_area = (grid) => {
             .map((a) => parseInt(a[0]));
         const max_moves = max_moves_input.value;
         console.time('solve');
-        const solution = solver.solve(grid.cube, allowed_rotations, max_moves);
+        const solutions = solver.solve(grid.cube, allowed_rotations, max_moves);
         console.timeEnd('solve');
-        if (solution) {
-            solution_text.value = rubik.rotations_to_string(solution);
+
+        solutions_list.innerHTML = '';
+
+        for (const solution of solutions) {
+            const list_item = document.createElement('li');
+            list_item.innerText = rubik.rotations_to_string(solution);
+            solutions_list.appendChild(list_item);
+        };
+
+        if (solutions === null) {
+            solutions_header.innerText = 'No solutions!';
+        } else if (solutions.length > 0) {
+            solutions_header.innerText = 'Solutions';
         } else {
-            solution_text.value = 'No solution!';
+            solutions_header.innerText = 'Already solved!';
         }
     });
 };
