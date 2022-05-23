@@ -19,7 +19,11 @@ export const solve = (cube, allowed_rotations, max_moves) => {
 
     // Restore the initial state
     rubik.copy_into(copy, cube);
-    return solutions ? solutions : null;
+    if (!solutions) {
+        return null;
+    }
+    const min_length = Math.min(...solutions.map((solution) => solution.length));
+    return solutions.filter((solution) => solution.length === min_length);
 };
 
 const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) => {
