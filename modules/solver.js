@@ -21,20 +21,22 @@ export const solve = (cube, allowed_rotations, max_moves) => {
     const move_set = construct_move_set(allowed_rotations);
 
     const solutions = [];
-    solve_impl(cube_copy, solved_cube, move_set, [], solutions, max_moves);
+    solve_impl(cube_copy, solved_cube, move_set, [], solutions, max_moves, 0);
 
     // Return solutions of minimum length
     const min_length = Math.min(...solutions.map((solution) => solution.length));
     return solutions.filter((solution) => solution.length === min_length);
 };
 
-const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) => {
+// Returns the max depth that should be checked for future calls
+const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth, depth) => {
     // Base case - no moves left
-    if (max_depth === 0) {
-        return;
+    if (depth >= max_depth) {
+        // Continue with current max depth since we didn't find anything here
+        return max_depth;
     }
-    if (max_depth >= 5) {
-        console.log('   '.repeat(max_depth) + max_depth);
+    if (depth <= 1) {
+        console.log('   '.repeat(depth) + depth);
     }
 
     for (const rotation in move_set) {
@@ -47,7 +49,7 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) =>
         if (solved) {
             solutions.push([...moves]);
         } else {
-            solve_impl(cube, solved_cube, move_set[rotation], moves, solutions, max_depth - 1);
+            max_depth = solve_impl(cube, solved_cube, move_set[rotation], moves, solutions, max_depth, depth + 1);
         }
 
         // Undo the move to try the next one
@@ -56,9 +58,13 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) =>
 
         if (solved) {
             // No point in trying more moves from here
-            break;
+            // Don't look any further than the current depth
+            // (+1 since we stop when our depth equals it)
+            return depth + 1;
         }
     }
+    // Continue with current max depth since we didn't find anything here
+    return max_depth;
 };
 
 const construct_move_set = (allowed_rotations) => {
