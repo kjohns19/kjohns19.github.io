@@ -70,65 +70,56 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth, de
 const construct_move_set = (allowed_rotations) => {
     const move_set = {};
 
-    const get_or_default = (obj, elem, def) => {
-        const value = obj[elem];
+    const get_move_data = (move) => {
+        const value = move_set[move];
         if (value !== undefined) {
             return value;
         }
-        obj[elem] = def;
-        return def;
-    };
-    const get_move_data = (move1, move2) => {
-        const d1 = get_or_default(move_set, move1, {});
-        const d2 = get_or_default(d1, move2, {});
-        return d2;
+        const new_value = {};
+        move_set[move] = new_value;
+        return new_value;
     };
 
-    const construct_impl = (moves, max_depth) => {
+    const construct_impl = (last_move, max_depth) => {
         if (max_depth === 0) {
             return;
         }
         for (const rotation of allowed_rotations) {
-            if (!move_allowed(rotation, moves))
+            if (!move_allowed(rotation, last_move))
                 continue;
-            const move1 = moves.length > 1 ? moves[moves.length - 2] : null;
-            const move2 = moves.length > 0 ? moves[moves.length - 1] : null;
-            const move_data = get_move_data(move1, move2);
-            move_data[rotation] = get_move_data(move2, rotation);
-            moves.push(rotation);
-            construct_impl(moves, max_depth - 1);
-            moves.pop();
+            const move_data = get_move_data(last_move);
+            move_data[rotation] = get_move_data(rotation);
+            construct_impl(rotation, max_depth - 1);
         }
     };
 
-    construct_impl([], 3);
-    return get_move_data(null, null);
+    construct_impl(null, 2);
+    return get_move_data(null);
 };
 
-const move_allowed = (rotation, moves) => {
+const move_allowed = (rotation, last_move) => {
+    if (last_move === null) {
+        // No previous move - must be valid
+        return true;
+    }
+
     const axis = get_axis(rotation);
     const base = rubik.base_rotation(rotation);
 
-    let index = moves.length - 1;
-    for (let index = moves.length - 1; index >= 0; index--) {
-        const move = moves[index];
-        const move_axis = get_axis(move);
-        const move_base = rubik.base_rotation(move);
-        if (move_axis !== axis) {
-            // The previous move was on a different axis, so this move is valid
-            return true;
-        } else if (move_base === base) {
-            // The previous move was on the same face, so this move is invalid
-            return false;
-        } else {
-            // The previous move was on the opposite face, so look at the move before it
-            // Since this move can be reordered
-            // (e.g. L R is equivalent to R L)
-            continue;
-        }
+    const last_axis = get_axis(last_move);
+    const last_base = rubik.base_rotation(last_move);
+
+    if (last_axis !== axis) {
+        // The previous move was on a different axis, so this move is valid
+        return true;
+    } else if (last_base === base) {
+        // The previous move was on the same face, so this move is invalid
+        return false;
+    } else  {
+        // The previous move was on the opposite face, so whether this move is valid
+        // depends on the "order" of the faces - R can be after L, but L can't be after R
+        return last_base > base;
     }
-    // No more previous moves - must be valid
-    return true;
 };
 
 const get_axis = (rotation) => {
