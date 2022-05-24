@@ -1,27 +1,29 @@
 import * as rubik from './rubik.js';
 
+// Find solutions to a cube
+// Returns an array of the solutions (each solution is an array of rotations)
+// The array will contain a single empty array if the cube is already solved
+// The array will be empty if there are no solutions
 export const solve = (cube, allowed_rotations, max_moves) => {
+    // The solved cube has the same centers as the scrambled one
+    // so no full rotations are needed
     const solved_cube = rubik.create(rubik.get_centers(cube));
+
+    // Check if it's already solved
     if (rubik.is_equal_with_ignored(cube, solved_cube)) {
-        return [];
+        return [[]];
     }
 
-    const copy = rubik.copy(cube);
+    // Solve a copy so the original is unchanged
+    const cube_copy = rubik.copy(cube);
 
-    // Double rotations get tried first
-    const sorted_rotations = [...allowed_rotations];
-    sorted_rotations.sort();
-    sorted_rotations.reverse();
+    // Construct a graph of moves based on the allowed rotations
+    const move_set = construct_move_set(allowed_rotations);
 
-    const move_set = construct_move_set(sorted_rotations);
     const solutions = [];
-    solve_impl(cube, solved_cube, move_set, [], solutions, max_moves);
+    solve_impl(cube_copy, solved_cube, move_set, [], solutions, max_moves);
 
-    // Restore the initial state
-    rubik.copy_into(copy, cube);
-    if (!solutions) {
-        return null;
-    }
+    // Return solutions of minimum length
     const min_length = Math.min(...solutions.map((solution) => solution.length));
     return solutions.filter((solution) => solution.length === min_length);
 };

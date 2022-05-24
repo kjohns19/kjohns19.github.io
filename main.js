@@ -198,16 +198,18 @@ const setup_solve_area = (grid) => {
 
         for (const solution of solutions) {
             const list_item = document.createElement('li');
-            list_item.innerText = rubik.rotations_to_string(solution);
+            if (solution.length === 0) {
+                list_item.innerText = 'Already solved!';
+            } else {
+                list_item.innerText = rubik.rotations_to_string(solution);
+            }
             solutions_list.appendChild(list_item);
         };
 
-        if (solutions === null) {
-            solutions_header.innerText = 'No solutions!';
-        } else if (solutions.length > 0) {
+        if (solutions.length > 0) {
             solutions_header.innerText = 'Solutions';
         } else {
-            solutions_header.innerText = 'Already solved!';
+            solutions_header.innerText = 'No solutions!';
         }
     });
 };
