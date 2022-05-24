@@ -150,25 +150,36 @@ const setup_solve_area = (grid) => {
     const set_all = (value) => {
         for (const data of allowed_rotations_data) {
             data.button.checked = value;
-            allowed_rotations_set[data.rotation] = value;
+            for (const rotation of data.rotations) {
+                allowed_rotations_set[rotation] = value;
+            }
         };
     }
 
-    for (const rotation_row of create_rotations_grid(false)) {
+    const rotations = ['R', 'L', 'F', 'B', 'U', 'D'];
+    for (let i = 0; i < 2; i++) {
         const row = table.insertRow();
-        for (const rotation of rotation_row) {
+        for (const rotation_name of rotations) {
             const cell = row.insertCell();
+            const rotation = rubik.rotation[rotation_name];
+            const rotations = (i === 0) ? [rotation, -rotation] : [2 * rotation];
+
             const div = document.createElement('div');
             const button = document.createElement('input');
             button.type = 'checkbox';
             button.addEventListener('click', () => {
-                allowed_rotations_set[rotation] = button.checked;
+                for (const rotation of rotations) {
+                    allowed_rotations_set[rotation] = button.checked;
+                }
             });
             div.appendChild(button);
-            allowed_rotations_data.push({button: button, rotation: rotation});
+            allowed_rotations_data.push({
+                button: button,
+                rotations: rotations
+            });
 
             const label = document.createElement('label');
-            label.innerHTML = rubik.rotation_to_string(rotation);
+            label.innerText = rotations.map(rubik.rotation_to_string).join('/');
             div.appendChild(label);
 
             cell.appendChild(div);
