@@ -25,8 +25,8 @@ export const rotation = {
     B: 3,
     R: 5,
     L: 7,
-    D: 9,
-    U: 11,
+    U: 9,
+    D: 11,
     M: 13,
     E: 15,
     S: 17,
@@ -90,20 +90,20 @@ rotate_data[rotation.L] = {
         off.d + 0, off.d + 3, off.d + 6, off.b + 8, off.b + 5, off.b + 2,
     ],
 };
-rotate_data[rotation.D] = {
-    name: 'D',
-    face: face.DOWN,
-    indices: [
-        off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
-        off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
-    ],
-};
 rotate_data[rotation.U] = {
     name: 'U',
     face: face.UP,
     indices: [
         off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
         off.f + 2, off.f + 1, off.f + 0, off.l + 2, off.l + 1, off.l + 0,
+    ],
+};
+rotate_data[rotation.D] = {
+    name: 'D',
+    face: face.DOWN,
+    indices: [
+        off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
+        off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
     ],
 };
 rotate_data[rotation.M] = {
