@@ -37,7 +37,7 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) =>
         console.log('   '.repeat(max_depth) + max_depth);
     }
 
-    for (const rotation of move_set.moves) {
+    for (const rotation in move_set) {
         // Make the move
         rubik.rotate(cube, rotation);
         moves.push(rotation);
@@ -47,7 +47,7 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) =>
         if (solved) {
             solutions.push([...moves]);
         } else {
-            solve_impl(cube, solved_cube, move_set.next[rotation], moves, solutions, max_depth - 1);
+            solve_impl(cube, solved_cube, move_set[rotation], moves, solutions, max_depth - 1);
         }
 
         // Undo the move to try the next one
@@ -62,11 +62,6 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth) =>
 };
 
 const construct_move_set = (allowed_rotations) => {
-    const allowed_rotations_set = {};
-    for (const rotation of allowed_rotations) {
-        allowed_rotations_set[rotation] = 1;
-    }
-
     const move_set = {};
 
     const get_or_default = (obj, elem, def) => {
@@ -77,11 +72,10 @@ const construct_move_set = (allowed_rotations) => {
         obj[elem] = def;
         return def;
     };
-    const get_move_data = (move1, move2, move3) => {
+    const get_move_data = (move1, move2) => {
         const d1 = get_or_default(move_set, move1, {});
         const d2 = get_or_default(d1, move2, {});
-        const d3 = get_or_default(d2, move3, {moves: [], next: {}});
-        return d3;
+        return d2;
     };
 
     const construct_impl = (moves, max_depth) => {
@@ -89,113 +83,45 @@ const construct_move_set = (allowed_rotations) => {
             return;
         }
         for (const rotation of allowed_rotations) {
-            if (!move_allowed(rotation, moves, allowed_rotations_set))
+            if (!move_allowed(rotation, moves))
                 continue;
-            const move1 = moves.length > 2 ? moves[moves.length - 3] : null;
-            const move2 = moves.length > 1 ? moves[moves.length - 2] : null;
-            const move3 = moves.length > 0 ? moves[moves.length - 1] : null;
-            const data = get_move_data(move1, move2, move3);
-            data.moves.push(rotation);
-            data.next[rotation] = get_move_data(move2, move3, rotation);
-
+            const move1 = moves.length > 1 ? moves[moves.length - 2] : null;
+            const move2 = moves.length > 0 ? moves[moves.length - 1] : null;
+            const move_data = get_move_data(move1, move2);
+            move_data[rotation] = get_move_data(move2, rotation);
             moves.push(rotation);
             construct_impl(moves, max_depth - 1);
             moves.pop();
         }
     };
 
-    construct_impl([], 4);
-    return get_move_data(null, null, null);
+    construct_impl([], 3);
+    return get_move_data(null, null);
 };
 
-const move_allowed = (rotation, moves, allowed_rotations) => {
+const move_allowed = (rotation, moves) => {
     const axis = get_axis(rotation);
+    const base = rubik.base_rotation(rotation);
 
     let index = moves.length - 1;
-    const get_move = () => {
-        while (index >= 0) {
-            const move = moves[index];
-            index--;
-            const move_axis = get_axis(move);
-            // Skip move if it's on the opposite side of the rotation
-            // (e.g. B when the rotation is F)
-            // Since that doesn't affect this rotation and can be reordered
-            if (move_axis === axis && !(move === rotation || move === -rotation ||
-                                        move === (2 * Math.abs(rotation)) ||
-                                        (2 * Math.abs(move)) === rotation)) {
-                continue;
-            }
-            return move;
+    for (let index = moves.length - 1; index >= 0; index--) {
+        const move = moves[index];
+        const move_axis = get_axis(move);
+        const move_base = rubik.base_rotation(move);
+        if (move_axis !== axis) {
+            // The previous move was on a different axis, so this move is valid
+            return true;
+        } else if (move_base === base) {
+            // The previous move was on the same face, so this move is invalid
+            return false;
+        } else {
+            // The previous move was on the opposite face, so look at the move before it
+            // Since this move can be reordered
+            // (e.g. L R is equivalent to R L)
+            continue;
         }
-        // No more moves
-        return null;
-    };
-
-    // Check last move
-    const move1 = get_move();
-    if (!move1 || get_axis(move1) !== axis) {
-        return true;
     }
-
-    // F F' or F' F is never allowed
-    if (move1 === -rotation) {
-        return false;
-    }
-    // F2 F2 is never allowed
-    if (move1 === rotation && (move1 % 2) === 0) {
-        return false;
-    }
-
-    // F F or F' F' isn't allowed if F2 is a valid move
-    if (move1 === rotation && allowed_rotations[2 * Math.abs(move1)]) {
-        return false;
-    }
-
-    // F2 F isn't allowed if F' is a valid move
-    // F2 F' isn't allowed if F is a valid move
-    if (move1 === (2 * Math.abs(rotation)) && allowed_rotations[-rotation]) {
-        return false;
-    }
-    // F F2 isn't allowed if F' is a valid move
-    // F' F2 isn't allowed if F is a valid move
-    if ((2 * Math.abs(move1)) === rotation && allowed_rotations[-move1]) {
-        return false;
-    }
-
-    // At this point any move different from the last move is allowed
-    if (move1 !== rotation) {
-        return true;
-    }
-
-    // Check 2nd to last move
-    const move2 = get_move();
-    if (!move2 || get_axis(move2) !== axis) {
-        return true;
-    }
-
-    // F F F isn't allowed if F' is a valid move
-    // F' F' F' isn't allowed if F is a valid move
-    if (move2 === move1 && allowed_rotations[-rotation]) {
-        return false;
-    }
-
-    // At this point any move different from the 2nd to last move is allowed
-    if (move2 !== rotation) {
-        return true;
-    }
-
-    // Check 3rd to last move
-    const move3 = get_move();
-    if (!move3 || get_axis(move3) !== axis) {
-        return true;
-    }
-
-    // F F F F or F' F' F' F' is never allowed
-    if (move3 === move2) {
-        return false;
-    }
-
-    // Valid move
+    // No more previous moves - must be valid
     return true;
 };
 
