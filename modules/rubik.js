@@ -287,11 +287,11 @@ export const rotate = (cube, rotation) => {
     }
 
     // Double the rotation value to rotate twice (e.g. 2*rotation.F)
-    if (rotation % 2 === 0) {
-        rotate(cube, rotation / 2);
-        rotate(cube, rotation / 2);
-        return
+    const twice = rotation % 2 === 0;
+    if (twice) {
+        rotation = Math.abs(rotation / 2);
     }
+
     // Negate the rotation to rotate counter-clockwise (e.g. -rotation.F)
     const ccw = (rotation < 0);
     const abs_rotation = Math.abs(rotation);
@@ -300,16 +300,16 @@ export const rotate = (cube, rotation) => {
         return;
     }
     if (data.face !== undefined) {
-        rotate_face(cube, data.face, ccw);
+        rotate_face(cube, data.face, ccw, twice);
     }
     if (data.ccw_face !== undefined) {
-        rotate_face(cube, data.ccw_face, !ccw);
+        rotate_face(cube, data.ccw_face, !ccw, twice);
     }
     const cube_data = data.indices.map(i => cube[i]);
 
     const len = data.indices.length;
     const stride = len / 4;
-    const offset = ccw ? stride * 3 : stride;
+    const offset = stride * (ccw ? 3 : twice ? 2 : 1);
     for (let i = 0; i < len; i++) {
         cube[data.indices[(i + offset) % len]] = cube_data[i];
     }
@@ -379,19 +379,34 @@ export const base_rotation = (rot) => {
 // Private functions
 
 // Rotate a face clockwise or counter-clockwise
-const rotate_face = (cube, face, ccw) => {
+const rotate_face = (cube, face, ccw, twice) => {
     const offset = face * 9;
-    let new_face = [
-        cube[offset + 6],
-        cube[offset + 3],
-        cube[offset + 0],
-        cube[offset + 7],
-        cube[offset + 4],
-        cube[offset + 1],
-        cube[offset + 8],
-        cube[offset + 5],
-        cube[offset + 2],
-    ];
+    let new_face;
+    if (twice) {
+        new_face = [
+            cube[offset + 8],
+            cube[offset + 7],
+            cube[offset + 6],
+            cube[offset + 5],
+            cube[offset + 4],
+            cube[offset + 3],
+            cube[offset + 2],
+            cube[offset + 1],
+            cube[offset + 0],
+        ];
+    } else {
+        new_face = [
+            cube[offset + 6],
+            cube[offset + 3],
+            cube[offset + 0],
+            cube[offset + 7],
+            cube[offset + 4],
+            cube[offset + 1],
+            cube[offset + 8],
+            cube[offset + 5],
+            cube[offset + 2],
+        ];
+    }
     if (ccw) {
         new_face.reverse();
     }
