@@ -132,10 +132,10 @@ rotate_data[rotation.X] = {
     face: face.RIGHT,
     ccw_face: face.LEFT,
     indices: [
-        ...range(off.u + 0, off.u + 9),
-        ...range(off.f + 0, off.f + 9),
-        ...range(off.d + 0, off.d + 9),
         ...range(off.b + 8, off.b - 1),
+        ...range(off.d + 0, off.d + 9),
+        ...range(off.f + 0, off.f + 9),
+        ...range(off.u + 0, off.u + 9),
     ],
 };
 rotate_data[rotation.Y] = {
@@ -143,9 +143,9 @@ rotate_data[rotation.Y] = {
     face: face.UP,
     ccw_face: face.DOWN,
     indices: [
-        ...range(off.l + 0, off.l + 9),
-        ...range(off.f + 0, off.f + 9),
         ...range(off.r + 0, off.r + 9),
+        ...range(off.f + 0, off.f + 9),
+        ...range(off.l + 0, off.l + 9),
         ...range(off.b + 0, off.b + 9),
     ],
 };
