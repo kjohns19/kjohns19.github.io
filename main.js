@@ -196,17 +196,37 @@ const setup_solve_area = (grid) => {
     const solutions_header = document.getElementById('solutions_header');
     const solutions_list = document.getElementById('solutions_list');
 
-    document.getElementById('solve_button').addEventListener('click', () => {
-        const allowed_rotations = Object.entries(allowed_rotations_set)
-            .filter((a) => a[1])
-            .map((a) => parseInt(a[0]));
-        const max_moves = max_moves_input.value;
-        console.time('solve');
-        const solutions = solver.solve(grid.cube, allowed_rotations, max_moves);
-        console.timeEnd('solve');
 
+    const solve_button = document.getElementById('solve_button');
+    const stop_button = document.getElementById('stop_button');
+    const timer_label = document.getElementById('timer_label');
+
+    const time_data = {
+        interval: null,
+        time: 0
+    };
+
+    const start_solve = () => {
         solutions_list.innerHTML = '';
+        solutions_header.innerText = '';
 
+        solve_button.disabled = true;
+        stop_button.disabled = false;
+        timer_label.innerText = '00:00';
+        time_data.time = 0;
+        time_data.interval = setInterval(() => {
+            time_data.time += 1;
+            const minutes = Math.floor(time_data.time / 60);
+            const seconds = time_data.time % 60;
+            timer_label.innerText = [minutes, seconds].map((a) => a < 10 ? '0' + a : a).join(':');
+        }, 1000);
+    };
+    const stop_solve = () => {
+        solve_button.disabled = false;
+        stop_button.disabled = true;
+        clearInterval(time_data.interval);
+    };
+    const on_solve = (solutions) => {
         for (const solution of solutions) {
             const list_item = document.createElement('li');
             if (solution.length === 0) {
@@ -226,6 +246,38 @@ const setup_solve_area = (grid) => {
         } else {
             solutions_header.innerText = 'No solutions!';
         }
+        stop_solve();
+    };
+
+    let worker;
+    const recreate_worker = () => {
+        worker = new Worker('worker.js', {type: 'module'});
+
+        worker.addEventListener('error', (message) => {
+            stop_solve();
+        });
+        worker.addEventListener('message', (message) => {
+            on_solve(message.data.solutions);
+        });
+    };
+    recreate_worker();
+
+    solve_button.addEventListener('click', () => {
+        const allowed_rotations = Object.entries(allowed_rotations_set)
+            .filter((a) => a[1])
+            .map((a) => parseInt(a[0]));
+        const max_moves = max_moves_input.value;
+        worker.postMessage({
+            cube: grid.cube,
+            allowed_rotations: allowed_rotations,
+            max_moves: max_moves
+        });
+        start_solve();
+    });
+    stop_button.addEventListener('click', () => {
+        worker.terminate();
+        recreate_worker();
+        stop_solve();
     });
 };
 
