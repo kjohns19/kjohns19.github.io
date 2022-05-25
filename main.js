@@ -212,7 +212,11 @@ const setup_solve_area = (grid) => {
             if (solution.length === 0) {
                 list_item.innerText = 'Already solved!';
             } else {
-                list_item.innerText = rubik.rotations_to_string(solution);
+                const solution_string = rubik.rotations_to_string(solution);
+                const encoded_solution = solution_string.replaceAll('\'', '-').replaceAll(' ', '_');
+                const url = 'https://alg.cubing.net/?type=alg&alg=' + encoded_solution;
+                const href = 'href="' + url + '" target="_blank" rel="noopener noreferrer"';
+                list_item.innerHTML = '<a ' + href + '>' + solution_string + '</a>';
             }
             solutions_list.appendChild(list_item);
         };
