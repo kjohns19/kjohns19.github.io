@@ -21,7 +21,7 @@ export const solve = (cube, allowed_rotations, max_moves) => {
     const move_set = construct_move_set(allowed_rotations);
 
     const solutions = [];
-    solve_impl(cube_copy, solved_cube, move_set, [], solutions, max_moves, 0);
+    solve_impl(cube_copy, solved_cube, move_set, [], solutions, max_moves, 1);
 
     // Return solutions of minimum length
     const min_length = Math.min(...solutions.map((solution) => solution.length));
@@ -31,7 +31,7 @@ export const solve = (cube, allowed_rotations, max_moves) => {
 // Returns the max depth that should be checked for future calls
 const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth, depth) => {
     // Base case - no moves left
-    if (depth >= max_depth) {
+    if (depth > max_depth) {
         // Continue with current max depth since we didn't find anything here
         return max_depth;
     }
@@ -49,7 +49,8 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth, de
         if (solved) {
             solutions.push([...moves]);
         } else {
-            max_depth = solve_impl(cube, solved_cube, move_set[rotation], moves, solutions, max_depth, depth + 1);
+            max_depth = solve_impl(cube, solved_cube, move_set[rotation], moves, solutions,
+                                   max_depth, depth + 1);
         }
 
         // Undo the move to try the next one
@@ -59,8 +60,7 @@ const solve_impl = (cube, solved_cube, move_set, moves, solutions, max_depth, de
         if (solved) {
             // No point in trying more moves from here
             // Don't look any further than the current depth
-            // (+1 since we stop when our depth equals it)
-            return depth + 1;
+            return depth;
         }
     }
     // Continue with current max depth since we didn't find anything here
