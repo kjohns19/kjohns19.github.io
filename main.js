@@ -292,7 +292,7 @@ const setup_solve_area = (grid) => {
         const allowed_rotations = Object.entries(allowed_rotations_set)
             .filter((a) => a[1])
             .map((a) => parseInt(a[0]));
-        const max_moves = max_moves_input.value;
+        const max_moves = max_moves_input.valueAsNumber;
         worker.postMessage({
             cube: grid.cube,
             allowed_rotations: allowed_rotations,
