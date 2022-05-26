@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <script type="module" src="worker.js"></script>
+
     <title>Cube Solver</title>
     <link rel="icon" type="image/png" href="icon.png"/>
     <link rel="stylesheet" href="styles.css"/>
@@ -36,6 +39,8 @@
         <button id="solve_button">Solve</button>
         <button id="stop_button" disabled="true">Stop</button>
         <label id="timer_label"></label>
+        <label id="percent_label"></label>
+        <label id="estimate_label"></label>
         <br>
         <h4 id="solutions_header"></h4>
         <ol id="solutions_list">

@@ -226,10 +226,19 @@ const setup_solve_area = (grid) => {
     const solve_button = document.getElementById('solve_button');
     const stop_button = document.getElementById('stop_button');
     const timer_label = document.getElementById('timer_label');
+    const percent_label = document.getElementById('percent_label');
+    const estimate_label = document.getElementById('estimate_label');
 
     const time_data = {
         interval: null,
-        time: 0
+        start: null
+    };
+
+    const seconds_to_string = (time_seconds) => {
+        const hours = Math.floor(time_seconds / 60 / 60);
+        const minutes = Math.floor((time_seconds / 60) % 60);
+        const seconds = Math.floor(time_seconds) % 60;
+        return [hours, minutes, seconds].map((v) => v < 10 ? '0' + v : v).join(':');
     };
 
     const start_solve = () => {
@@ -239,18 +248,20 @@ const setup_solve_area = (grid) => {
         solve_button.disabled = true;
         stop_button.disabled = false;
         timer_label.innerText = '00:00';
-        time_data.time = 0;
+        percent_label.innerText = '';
+        estimate_label.innerText = '';
+        time_data.start = Date.now();
         time_data.interval = setInterval(() => {
-            time_data.time += 1;
-            const minutes = Math.floor(time_data.time / 60);
-            const seconds = time_data.time % 60;
-            timer_label.innerText = [minutes, seconds].map((a) => a < 10 ? '0' + a : a).join(':');
-        }, 1000);
+            const delta = (Date.now() - time_data.start) / 1000;
+            timer_label.innerText = seconds_to_string(delta);
+        }, 100);
     };
     const stop_solve = () => {
         solve_button.disabled = false;
         stop_button.disabled = true;
         clearInterval(time_data.interval);
+        percent_label.innerText = '';
+        estimate_label.innerText = '';
     };
     const on_solve = (solutions) => {
         for (const solution of solutions) {
@@ -274,6 +285,16 @@ const setup_solve_area = (grid) => {
         }
         stop_solve();
     };
+    const on_percent = (percent) => {
+        const floored = Math.floor(percent);
+        percent_label.innerText = floored + '%';
+
+        const delta = (Date.now() - time_data.start) / 1000;
+        if (delta >= 5) {
+            const estimate = Math.round(100 / percent * delta - delta);
+            estimate_label.innerText = 'Estimated: ' + seconds_to_string(estimate);
+        }
+    };
 
     let worker;
     const recreate_worker = () => {
@@ -283,7 +304,11 @@ const setup_solve_area = (grid) => {
             stop_solve();
         });
         worker.addEventListener('message', (message) => {
-            on_solve(message.data.solutions);
+            if (message.data.solutions) {
+                on_solve(message.data.solutions);
+            } else if (message.data.percent) {
+                on_percent(message.data.percent);
+            }
         });
     };
     recreate_worker();
