@@ -2,6 +2,7 @@ import * as rubik from './modules/rubik.js';
 import * as solver from './modules/solver.js';
 
 const main = () => {
+    setup_theme();
     const cube = rubik.create();
     console.log(rubik.to_string(cube));
     const color_select = create_color_selector();
@@ -9,6 +10,31 @@ const main = () => {
     setup_input_area(grid);
     setup_solve_area(grid);
 }
+
+const setup_theme = () => {
+    const theme_button = document.getElementById('theme_button');
+
+    const set_theme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+            theme_button.innerText = 'Switch to light mode';
+        } else {
+            theme_button.innerText = 'Switch to dark mode';
+        }
+        localStorage.setItem('theme', theme);
+    };
+    set_theme(
+        localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') ||
+        'light'
+    );
+
+    theme_button.addEventListener('click', () => {
+        const current_theme = document.documentElement.getAttribute('data-theme');
+        const next_theme = current_theme === 'dark' ? 'light' : 'dark';
+        set_theme(next_theme);
+    });
+};
 
 const create_color_selector = () => {
     const color_select = {

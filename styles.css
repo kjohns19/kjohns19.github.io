@@ -1,3 +1,57 @@
+html[data-theme='light'] {
+    --background-color: #ffffff;
+    --text-color: #111111;
+    --link-color: #5533dd;
+    --button-text-color: #000000;
+    --button-background: #f0f0f0;
+    --input-background: #ffffff;
+    --placeholder-color: #888888;
+}
+
+html[data-theme='dark'] {
+    --background-color: #333333;
+    --text-color: #eeeeee;
+    --link-color: #aaaaff;
+    --button-text-color: #eeeeee;
+    --button-background: #606060;
+    --button-disabled-text-color: #666666;
+    --button-disabled-background: #222222;
+    --input-background: #555555;
+    --placeholder-color: #888888;
+}
+
+body {
+    background: var(--background-color);
+    color: var(--text-color);
+}
+
+a {
+    color: var(--link-color);
+}
+
+button {
+    background: var(--button-background);
+    border: 1px solid #222222;
+    color: var(--button-text-color);
+}
+button:disabled {
+    opacity: 50%;
+}
+button:hover:enabled {
+    filter: brightness(90%);
+}
+button:active:enabled {
+    filter: brightness(110%);
+}
+input {
+    color: var(--text-color);
+    background: var(--input-background);
+    border: 1px solid #222222;
+}
+::placeholder {
+    color: var(--placeholder-color);
+}
+
 table.cube {
     border-collapse: collapse;
     margin: 0px;
@@ -44,6 +98,17 @@ button.selected {
 button.rotation {
     width: 100%;
     height: 100%;
+}
+
+.textOnly {
+    color: var(--link-color);
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+.textOnly:hover {
+    text-decoration: underline;
 }
 
 #solutions_header {
