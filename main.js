@@ -75,7 +75,7 @@ const create_color_selector = () => {
 };
 
 const update_grid = (grid) => {
-    grid.cube.forEach((value, i) => {
+    rubik.for_each(grid.cube, (value, i) => {
         grid.buttons[i].className = 'cubeButton color' + value;
     });
 };
@@ -100,7 +100,7 @@ const create_grid = (cube, color_select) => {
                 grid.buttons.push(button);
                 cell.appendChild(button);
                 button.addEventListener('click', () => {
-                    cube[index] = color_select.color;
+                    rubik.set_at_index(cube, index, color_select.color);
                     update_grid(grid);
                 });
             }

@@ -266,14 +266,24 @@ export const to_string = (cube) => {
     );
 };
 
+export const for_each = (cube, func) => {
+    cube.forEach(func);
+};
+
 // Get the face value at a position
 export const get_at = (cube, face, row, col) => {
     return cube[face * 3 * 3 + row * 3 + col];
+};
+export const get_at_index = (cube, index) => {
+    return cube[index];
 };
 // Set the face value at a position
 export const set_at = (cube, face, row, col, value) => {
     cube[face * 3 * 3 + row * 3 + col] = value;
 }
+export const set_at_index = (cube, index, value) => {
+    cube[index] = value;
+};
 
 // Get the center colors of a cube
 export const get_centers = (cube) => {
