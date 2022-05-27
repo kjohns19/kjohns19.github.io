@@ -14,14 +14,14 @@ export const solve = (cube, allowed_rotations, max_moves, progress_callback) => 
         return [[]];
     }
 
-    // Solve a copy so the original is unchanged
-    const cube_copy = rubik.copy(cube);
+    // Each move will work with the previous move's resulting cube and write into another one
+    const cubes = [...Array(max_moves + 1)].map(() => rubik.copy(cube));
+    // This will be used to track the current set of moves at each depth
+    const moves = Array(max_moves);
 
     // Construct a graph of moves based on the allowed rotations
     const move_set = construct_move_set(allowed_rotations);
     const move_counts = count_moves(move_set, max_moves);
-    console.log('Moves:')
-    console.log(move_counts);
 
     const progress = {
         total: move_counts[null][0],
@@ -29,9 +29,8 @@ export const solve = (cube, allowed_rotations, max_moves, progress_callback) => 
         last_percent: -1,
         callback: progress_callback
     };
-    console.log(progress);
     const solutions = [];
-    solve_impl(cube_copy, solved_cube, move_set, move_counts, [], solutions, progress, max_moves, 1);
+    solve_impl(solved_cube, move_set, move_counts, cubes, moves, solutions, progress, max_moves, 1);
 
     // Return solutions of minimum length
     const min_length = Math.min(...solutions.map((solution) => solution.length));
@@ -39,35 +38,35 @@ export const solve = (cube, allowed_rotations, max_moves, progress_callback) => 
 };
 
 // Returns the max depth that should be checked for future calls
-const solve_impl = (cube, solved_cube, move_set, move_counts, moves, solutions, progress, max_depth, depth) => {
+const solve_impl = (solved_cube, move_set, move_counts, cubes, moves, solutions, progress, max_depth,
+                    depth) => {
     // Base case - no moves left
     if (depth > max_depth) {
         // Continue with current max depth since we didn't find anything here
         return max_depth;
     }
 
+    const cube = cubes[depth - 1];
+    const next_cube = cubes[depth];
+
     for (const rotation in move_set) {
         // Make the move
-        rubik.rotate(cube, rotation);
-        moves.push(rotation);
+        rubik.rotate_into(cube, next_cube, rotation);
+        moves[depth - 1] = rotation;
 
         // Add the solution if it's solved, otherwise try more moves
-        const solved = rubik.is_equal_with_ignored(cube, solved_cube);
+        const solved = rubik.is_equal_with_ignored(next_cube, solved_cube);
         if (solved) {
-            solutions.push([...moves]);
+            solutions.push(moves.slice(0, depth));
         } else {
-            const next_max_depth = solve_impl(cube, solved_cube, move_set[rotation], move_counts,
-                                              moves, solutions, progress, max_depth, depth + 1);
+            const next_max_depth = solve_impl(solved_cube, move_set[rotation], move_counts,
+                                              cubes, moves, solutions, progress, max_depth, depth + 1);
             if (depth + 5 === max_depth && progress.callback) {
                 progress.count += move_counts[rotation][depth] || 0;
                 progress.callback(progress.count, progress.total);
             }
             max_depth = next_max_depth;
         }
-
-        // Undo the move to try the next one
-        moves.pop();
-        rubik.rotate(cube, -rotation);
 
         if (solved) {
             // No point in trying more moves from here
@@ -105,7 +104,6 @@ const count_moves = (move_set, max_depth) => {
         return cached_depth;
     };
 
-    console.log(move_cache);
     count_moves_impl(move_set, null, 0);
     return move_cache;
 }
