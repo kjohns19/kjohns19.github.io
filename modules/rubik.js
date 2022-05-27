@@ -293,20 +293,14 @@ export const get_centers = (cube) => {
 // Apply a rotation to the cube
 export const rotate = (cube, rotation) => {
     const dest = Array(9 * 6);
-    if (!rotate_into(cube, dest, rotation)) {
-        return;
-    }
+    rotate_into(cube, dest, rotation);
     copy_into(dest, cube);
 };
 export const rotate_into = (cube, dest_cube, rotation) => {
     const index_data = cached_rotation_data[rotation];
-    if (index_data === undefined) {
-        return false;
-    }
     index_data.forEach((old_i, new_i) => {
         dest_cube[new_i] = cube[old_i];
     });
-    return true;
 }
 
 export const parse_rotations = (rotations_str) => {
