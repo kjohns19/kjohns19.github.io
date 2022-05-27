@@ -292,38 +292,22 @@ export const get_centers = (cube) => {
 
 // Apply a rotation to the cube
 export const rotate = (cube, rotation) => {
-    if (rotation === 0) {
+    const dest = Array(9 * 6);
+    if (!rotate_into(cube, dest, rotation)) {
         return;
     }
-
-    // Double the rotation value to rotate twice (e.g. 2*rotation.F)
-    const twice = rotation % 2 === 0;
-    if (twice) {
-        rotation = Math.abs(rotation / 2);
-    }
-
-    // Negate the rotation to rotate counter-clockwise (e.g. -rotation.F)
-    const ccw = (rotation < 0);
-    const abs_rotation = Math.abs(rotation);
-    const data = rotate_data[abs_rotation];
-    if (data === undefined) {
-        return;
-    }
-    if (data.face !== undefined) {
-        rotate_face(cube, data.face, ccw, twice);
-    }
-    if (data.ccw_face !== undefined) {
-        rotate_face(cube, data.ccw_face, !ccw, twice);
-    }
-    const cube_data = data.indices.map(i => cube[i]);
-
-    const len = data.indices.length;
-    const stride = len / 4;
-    const offset = stride * (ccw ? 3 : twice ? 2 : 1);
-    for (let i = 0; i < len; i++) {
-        cube[data.indices[(i + offset) % len]] = cube_data[i];
-    }
+    copy_into(dest, cube);
 };
+export const rotate_into = (cube, dest_cube, rotation) => {
+    const index_data = cached_rotation_data[rotation];
+    if (index_data === undefined) {
+        return false;
+    }
+    index_data.forEach((old_i, new_i) => {
+        dest_cube[new_i] = cube[old_i];
+    });
+    return true;
+}
 
 export const parse_rotations = (rotations_str) => {
     const valid = Object.keys(rotation).join('');
@@ -388,6 +372,37 @@ export const base_rotation = (rot) => {
 
 // Private functions
 
+// Calculate the index data for a rotation
+const calculate_rotation_data = (rotation) => {
+    const cube_data = [...Array(9 * 6).keys()];
+
+    // Double the rotation value to rotate twice (e.g. 2*rotation.F)
+    const twice = rotation % 2 === 0;
+    if (twice) {
+        rotation = Math.abs(rotation / 2);
+    }
+
+    // Negate the rotation to rotate counter-clockwise (e.g. -rotation.F)
+    const ccw = (rotation < 0);
+    const abs_rotation = Math.abs(rotation);
+    const data = rotate_data[abs_rotation];
+    if (data.face !== undefined) {
+        rotate_face(cube_data, data.face, ccw, twice);
+    }
+    if (data.ccw_face !== undefined) {
+        rotate_face(cube_data, data.ccw_face, !ccw, twice);
+    }
+    const cube_index_data = data.indices.map((i) => cube_data[i]);
+
+    const len = data.indices.length;
+    const stride = len / 4;
+    const offset = stride * (ccw ? 3 : twice ? 2 : 1);
+    for (let i = 0; i < len; i++) {
+        cube_data[data.indices[(i + offset) % len]] = cube_index_data[i];
+    }
+    return cube_data;
+};
+
 // Rotate a face clockwise or counter-clockwise
 const rotate_face = (cube, face, ccw, twice) => {
     const offset = face * 9;
@@ -424,3 +439,11 @@ const rotate_face = (cube, face, ccw, twice) => {
         cube[offset + i] = new_face[i];
     }
 };
+
+const cached_rotation_data = {};
+for (const mult of [1, -1, 2, -2]) {
+    for (const rot in rotation) {
+        const value = mult * rotation[rot];
+        cached_rotation_data[value] = calculate_rotation_data(value);
+    }
+}
