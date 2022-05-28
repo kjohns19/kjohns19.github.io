@@ -37,12 +37,10 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
         count: 0,
     };
 
-    // Returns the max depth that should be checked for future calls
     const solve_impl = (current_move_set, depth) => {
         // Base case - no moves left
         if (depth > max_moves) {
-            // Continue with current max depth since we didn't find anything here
-            return max_moves;
+            return;
         }
 
         const cube = cubes[depth - 1];
@@ -60,27 +58,22 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
                     solution: moves.slice(0, depth)
                 });
             } else {
-                const next_max_moves = solve_impl(current_move_set[rotation], depth + 1);
-                if (depth + 5 === max_moves) {
-                    progress.count += move_counts[rotation][depth] || 0;
-                    callback({
-                        progress: {
-                            count: progress.count,
-                            total: progress.total
-                        }
-                    });
-                }
-                max_moves = next_max_moves;
+                solve_impl(current_move_set[rotation], depth + 1);
             }
 
+            if (depth + 5 === max_moves) {
+                progress.count += move_counts[rotation][depth] || 0;
+                callback({
+                    progress: {
+                        count: progress.count,
+                        total: progress.total
+                    }
+                });
+            }
             if (solved) {
-                // No point in trying more moves from here
-                // Don't look any further than the current depth
-                return depth;
+                break;
             }
         }
-        // Continue with current max depth since we didn't find anything here
-        return max_moves;
     };
 
     solve_impl(move_set, 1);
