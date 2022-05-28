@@ -41,7 +41,11 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
         const cube = cubes[depth - 1];
         const next_cube = cubes[depth];
 
-        for (const rotation in current_move_set) {
+        const move_set_moves = current_move_set[0];
+        const move_set_next = current_move_set[1];
+        const len = move_set_moves.length;
+        for (let i = 0; i < len; i++) {
+            const rotation = move_set_moves[i];
             // Make the move
             rubik.rotate_into(cube, next_cube, rotation);
             moves[depth - 1] = rotation;
@@ -54,9 +58,9 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
                 });
             } else {
                 if (depth + 5 > max_moves) {
-                    solve_impl_fast(current_move_set[rotation], depth + 1);
+                    solve_impl_fast(move_set_next[i], depth + 1);
                 } else {
-                    solve_impl(current_move_set[rotation], depth + 1);
+                    solve_impl(move_set_next[i], depth + 1);
                 }
             }
 
@@ -78,8 +82,11 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
     const solve_impl_fast = (current_move_set, depth) => {
         const cube = cubes[depth - 1];
         const next_cube = cubes[depth];
-
-        for (const rotation in current_move_set) {
+        const move_set_moves = current_move_set[0];
+        const move_set_next = current_move_set[1];
+        const len = move_set_moves.length;
+        for (let i = 0; i < len; i++) {
+            const rotation = move_set_moves[i];
             // Make the move
             rubik.rotate_into(cube, next_cube, rotation);
             moves[depth - 1] = rotation;
@@ -91,7 +98,7 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
                 });
                 break;
             } else if (depth < max_moves) {
-                solve_impl_fast(current_move_set[rotation], depth + 1);
+                solve_impl_fast(move_set_next[i], depth + 1);
             }
         }
     }
@@ -124,8 +131,10 @@ const count_moves = (move_set, max_depth) => {
             }
         }
         cached_depth = 0;
-        for (const rotation in move_set) {
-            cached_depth += count_moves_impl(move_set[rotation], rotation, depth + 1) + 1;
+        const moves = move_set[0];
+        const next = move_set[1];
+        for (let i = 0, len = moves.length; i < len; i++) {
+            cached_depth += count_moves_impl(next[i], moves[i], depth + 1) + 1;
         }
         cached[depth] = cached_depth;
         return cached_depth;
@@ -143,7 +152,7 @@ const construct_move_set = (allowed_rotations) => {
         if (value !== undefined) {
             return value;
         }
-        const new_value = {};
+        const new_value = [[], []];
         move_set[move] = new_value;
         return new_value;
     };
@@ -156,7 +165,8 @@ const construct_move_set = (allowed_rotations) => {
             if (!move_allowed(rotation, last_move))
                 continue;
             const move_data = get_move_data(last_move);
-            move_data[rotation] = get_move_data(rotation);
+            move_data[0].push(rotation);
+            move_data[1].push(get_move_data(rotation));
             construct_impl(rotation, max_depth - 1);
         }
     };
