@@ -50,6 +50,7 @@ input {
 }
 ::placeholder {
     color: var(--placeholder-color);
+    opacity: 100%;
 }
 
 table.cube {
