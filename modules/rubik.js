@@ -307,10 +307,13 @@ module.rotate = (cube, rotation) => {
     module.copy_into(dest, cube);
 };
 module.rotate_into = (cube, dest_cube, rotation) => {
+    // This function is called *very* often, so we use a traditional for loop for performance
+    // We know exactly how long the array is so we hard code the length
+    // (54 = 3 * 3 * 6 = number of tiles on a cube)
     const index_data = cached_rotation_data[rotation];
-    index_data.forEach((old_i, new_i) => {
-        dest_cube[new_i] = cube[old_i];
-    });
+    for (let i = 0; i < 54; i++) {
+        dest_cube[i] = cube[index_data[i]];
+    }
 };
 
 module.parse_rotations = (rotations_str) => {
