@@ -216,7 +216,7 @@ module.reset = (cube) => {
 // Clear a cube
 module.clear = (cube) => {
     cube.fill(module.color.DONT_CARE);
-}
+};
 
 // Returns whether two cubes are equal
 module.is_equal = (c1, c2) => {
@@ -290,7 +290,7 @@ module.get_at_index = (cube, index) => {
 // Set the face value at a position
 module.set_at = (cube, face, row, col, value) => {
     cube[face * 3 * 3 + row * 3 + col] = value;
-}
+};
 module.set_at_index = (cube, index, value) => {
     cube[index] = value;
 };
@@ -311,7 +311,7 @@ module.rotate_into = (cube, dest_cube, rotation) => {
     index_data.forEach((old_i, new_i) => {
         dest_cube[new_i] = cube[old_i];
     });
-}
+};
 
 module.parse_rotations = (rotations_str) => {
     const valid = Object.keys(rotation).join('');
@@ -361,7 +361,7 @@ module.rotation_to_string = (rotation) => {
         return '?';
     }
     return data.name + suffix;
-}
+};
 
 // Convert a rotation to its base form (e.g. R' => R, R2 => R)
 module.base_rotation = (rot) => {
@@ -450,7 +450,7 @@ for (const mult of [1, -1, 2, -2]) {
         const value = mult * module.rotation[rot];
         cached_rotation_data[value] = calculate_rotation_data(value);
     }
-}
+};
 
 return module;
 })();

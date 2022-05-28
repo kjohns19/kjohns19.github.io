@@ -9,7 +9,7 @@ module.main = () => {
     const grid = create_grid(cube, color_select);
     setup_input_area(grid);
     setup_solve_area(grid);
-}
+};
 
 const setup_theme = () => {
     const theme_button = document.getElementById('theme_button');
@@ -164,7 +164,7 @@ const setup_input_area = (grid) => {
         }
     }
     document.getElementById('input_rotations_area').appendChild(table);
-}
+};
 
 const setup_solve_area = (grid) => {
     const table = document.createElement('table');

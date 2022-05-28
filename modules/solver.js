@@ -107,7 +107,7 @@ const count_moves = (move_set, max_depth) => {
 
     count_moves_impl(move_set, null, 0);
     return move_cache;
-}
+};
 
 const construct_move_set = (allowed_rotations) => {
     const move_set = {};
