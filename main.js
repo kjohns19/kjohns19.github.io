@@ -249,7 +249,7 @@ const setup_solve_area = (grid) => {
         stop_button.disabled = false;
         timer_label.innerText = '00:00:00';
         percent_label.innerText = '';
-        estimate_label.innerText = 'Estimated: (calculating...)';
+        estimate_label.innerText = 'Estimated: ';
         time_data.start = Date.now();
         time_data.interval = setInterval(() => {
             const delta = (Date.now() - time_data.start) / 1000;
@@ -290,10 +290,8 @@ const setup_solve_area = (grid) => {
         percent_label.innerText = floored + '%';
 
         const delta = (Date.now() - time_data.start) / 1000;
-        if (delta >= 3) {
-            const estimate = Math.round(100 / percent * delta - delta);
-            estimate_label.innerText = 'Estimated: ' + seconds_to_string(estimate);
-        }
+        const estimate = Math.round(100 / percent * delta - delta);
+        estimate_label.innerText = 'Estimated: ' + seconds_to_string(estimate);
     };
 
     let worker;
