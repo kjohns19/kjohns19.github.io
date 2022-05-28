@@ -227,6 +227,7 @@ const setup_solve_area = (grid) => {
     const timer_label = document.getElementById('timer_label');
     const percent_label = document.getElementById('percent_label');
     const estimate_label = document.getElementById('estimate_label');
+    const error_label = document.getElementById('error_label');
 
     let num_solutions = 0;
 
@@ -251,6 +252,7 @@ const setup_solve_area = (grid) => {
         timer_label.innerText = '00:00:00';
         percent_label.innerText = '';
         estimate_label.innerText = 'Estimated: ';
+        error_label.innerText = '';
         time_data.start = Date.now();
         time_data.interval = setInterval(() => {
             const delta = (Date.now() - time_data.start) / 1000;
@@ -298,6 +300,7 @@ const setup_solve_area = (grid) => {
         worker = new Worker('worker.js');
 
         worker.addEventListener('error', (message) => {
+            error_label.innerHTML = '<strong>AN ERROR OCCURRED</strong>';
             on_finish();
         });
         worker.addEventListener('message', (message) => {
