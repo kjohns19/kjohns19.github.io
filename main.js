@@ -1,7 +1,7 @@
-import * as rubik from './modules/rubik.js';
-import * as solver from './modules/solver.js';
+const main = (() => {
+const module = {};
 
-const main = () => {
+module.main = () => {
     setup_theme();
     const cube = rubik.create();
     console.log(rubik.to_string(cube));
@@ -296,7 +296,7 @@ const setup_solve_area = (grid) => {
 
     let worker;
     const recreate_worker = () => {
-        worker = new Worker('worker.js', {type: 'module'});
+        worker = new Worker('worker.js');
 
         worker.addEventListener('error', (message) => {
             stop_solve();
@@ -341,4 +341,7 @@ const create_rotations_grid = (xyz) => {
     return mults.map((mult) => rotations.map((rotation) => rubik.rotation[rotation] * mult));
 };
 
-main();
+return module;
+})();
+
+main.main();

@@ -1,4 +1,7 @@
-import * as solver from './modules/solver.js';
+importScripts(
+    './modules/rubik.js',
+    './modules/solver.js'
+);
 
 addEventListener('message', (message) => {
     const cube = message.data.cube;

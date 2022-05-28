@@ -1,10 +1,11 @@
-import * as rubik from './rubik.js';
+const solver = (() => {
+const module = {};
 
 // Find solutions to a cube
 // Returns an array of the solutions (each solution is an array of rotations)
 // The array will contain a single empty array if the cube is already solved
 // The array will be empty if there are no solutions
-export const solve = (cube, allowed_rotations, max_moves, progress_callback) => {
+module.solve = (cube, allowed_rotations, max_moves, progress_callback) => {
     // The solved cube has the same centers as the scrambled one
     // so no full rotations are needed
     const solved_cube = rubik.create(rubik.get_centers(cube));
@@ -176,3 +177,6 @@ const get_axis = (rotation) => {
         return 2;
     }
 };
+
+return module;
+})();

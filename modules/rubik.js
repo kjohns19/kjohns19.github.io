@@ -1,6 +1,9 @@
+const rubik = (() => {
+const module = {};
+
 // Public constants
 
-export const face = {
+module.face = {
     UP: 0,
     LEFT: 1,
     FRONT: 2,
@@ -8,7 +11,7 @@ export const face = {
     BACK: 4,
     DOWN: 5,
 };
-export const color = {
+module.color = {
     DONT_CARE: 0,
     WHITE: 1,
     ORANGE: 2,
@@ -17,10 +20,10 @@ export const color = {
     BLUE: 5,
     YELLOW: 6,
 };
-export const color_names = [
+module.color_names = [
     'Don\'t Care', 'White', 'Orange', 'Green', 'Red', 'Blue', 'Yellow'
 ];
-export const rotation = {
+module.rotation = {
     F: 1,
     B: 3,
     R: 5,
@@ -49,88 +52,88 @@ const range = (a, b, step) => {
 };
 
 const off = {
-    u: face.UP * 9,
-    l: face.LEFT * 9,
-    f: face.FRONT * 9,
-    r: face.RIGHT * 9,
-    b: face.BACK * 9,
-    d: face.DOWN * 9,
+    u: module.face.UP * 9,
+    l: module.face.LEFT * 9,
+    f: module.face.FRONT * 9,
+    r: module.face.RIGHT * 9,
+    b: module.face.BACK * 9,
+    d: module.face.DOWN * 9,
 };
 
 const rotate_data = [];
-rotate_data[rotation.F] = {
+rotate_data[module.rotation.F] = {
     name: 'F',
-    face: face.FRONT,
+    face: module.face.FRONT,
     indices: [
         off.u + 6, off.u + 7, off.u + 8, off.r + 0, off.r + 3, off.r + 6,
         off.d + 2, off.d + 1, off.d + 0, off.l + 8, off.l + 5, off.l + 2,
     ],
 };
-rotate_data[rotation.B] = {
+rotate_data[module.rotation.B] = {
     name: 'B',
-    face: face.BACK,
+    face: module.face.BACK,
     indices: [
         off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
         off.d + 6, off.d + 7, off.d + 8, off.r + 8, off.r + 5, off.r + 2,
     ],
 };
-rotate_data[rotation.R] = {
+rotate_data[module.rotation.R] = {
     name: 'R',
-    face: face.RIGHT,
+    face: module.face.RIGHT,
     indices: [
         off.u + 8, off.u + 5, off.u + 2, off.b + 0, off.b + 3, off.b + 6,
         off.d + 8, off.d + 5, off.d + 2, off.f + 8, off.f + 5, off.f + 2,
     ],
 };
-rotate_data[rotation.L] = {
+rotate_data[module.rotation.L] = {
     name: 'L',
-    face: face.LEFT,
+    face: module.face.LEFT,
     indices: [
         off.u + 0, off.u + 3, off.u + 6, off.f + 0, off.f + 3, off.f + 6,
         off.d + 0, off.d + 3, off.d + 6, off.b + 8, off.b + 5, off.b + 2,
     ],
 };
-rotate_data[rotation.U] = {
+rotate_data[module.rotation.U] = {
     name: 'U',
-    face: face.UP,
+    face: module.face.UP,
     indices: [
         off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
         off.f + 2, off.f + 1, off.f + 0, off.l + 2, off.l + 1, off.l + 0,
     ],
 };
-rotate_data[rotation.D] = {
+rotate_data[module.rotation.D] = {
     name: 'D',
-    face: face.DOWN,
+    face: module.face.DOWN,
     indices: [
         off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
         off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
     ],
 };
-rotate_data[rotation.M] = {
+rotate_data[module.rotation.M] = {
     name: 'M',
     indices: [
         off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
         off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
     ],
 };
-rotate_data[rotation.E] = {
+rotate_data[module.rotation.E] = {
     name: 'E',
     indices: [
         off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
         off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
     ],
 };
-rotate_data[rotation.S] = {
+rotate_data[module.rotation.S] = {
     name: 'S',
     indices: [
         off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
         off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
     ],
 };
-rotate_data[rotation.X] = {
+rotate_data[module.rotation.X] = {
     name: 'X',
-    face: face.RIGHT,
-    ccw_face: face.LEFT,
+    face: module.face.RIGHT,
+    ccw_face: module.face.LEFT,
     indices: [
         ...range(off.b + 8, off.b - 1),
         ...range(off.d + 0, off.d + 9),
@@ -138,10 +141,10 @@ rotate_data[rotation.X] = {
         ...range(off.u + 0, off.u + 9),
     ],
 };
-rotate_data[rotation.Y] = {
+rotate_data[module.rotation.Y] = {
     name: 'Y',
-    face: face.UP,
-    ccw_face: face.DOWN,
+    face: module.face.UP,
+    ccw_face: module.face.DOWN,
     indices: [
         ...range(off.r + 0, off.r + 9),
         ...range(off.f + 0, off.f + 9),
@@ -149,10 +152,10 @@ rotate_data[rotation.Y] = {
         ...range(off.b + 0, off.b + 9),
     ],
 };
-rotate_data[rotation.Z] = {
+rotate_data[module.rotation.Z] = {
     name: 'Z',
-    face: face.FRONT,
-    ccw_face: face.BACK,
+    face: module.face.FRONT,
+    ccw_face: module.face.BACK,
     indices: [
         ...range(off.l + 0, off.l + 9),
         ...[off.u + 2, off.u + 5, off.u + 8,
@@ -168,7 +171,7 @@ rotate_data[rotation.Z] = {
 // Public functions
 
 // Create a cube
-export const create = (centers) => {
+module.create = (centers) => {
     //             U00 U01 U02
     //             U10 U11 U12
     //             U20 U21 U22
@@ -185,7 +188,14 @@ export const create = (centers) => {
     // B => indices 36-44
     // D => indices 45-53
     if (centers === undefined) {
-        centers = [color.WHITE, color.ORANGE, color.GREEN, color.RED, color.BLUE, color.YELLOW];
+        centers = [
+            module.color.WHITE,
+            module.color.ORANGE,
+            module.color.GREEN,
+            module.color.RED,
+            module.color.BLUE,
+            module.color.YELLOW
+        ];
     }
     return [
         ...Array(9).fill(centers[0]),
@@ -198,39 +208,39 @@ export const create = (centers) => {
 };
 
 // Resets an existing cube to its initial state
-export const reset = (cube) => {
-    const new_cube = create();
-    copy_into(new_cube, cube);
+module.reset = (cube) => {
+    const new_cube = module.create();
+    module.copy_into(new_cube, cube);
 };
 
 // Clear a cube
-export const clear = (cube) => {
-    cube.fill(color.DONT_CARE);
+module.clear = (cube) => {
+    cube.fill(module.color.DONT_CARE);
 }
 
 // Returns whether two cubes are equal
-export const is_equal = (c1, c2) => {
+module.is_equal = (c1, c2) => {
     return c1.every((elem, i) => elem === c2[i]);
 };
-export const is_equal_with_ignored = (c1, c2) => {
+module.is_equal_with_ignored = (c1, c2) => {
     return c1.every((elem, i) => elem === c2[i] ||
-                                 elem === color.DONT_CARE ||
-                                 c2[i] === color.DONT_CARE);
+                                 elem === module.color.DONT_CARE ||
+                                 c2[i] === module.color.DONT_CARE);
 };
 
 // Copy a cube
-export const copy = (cube) => {
+module.copy = (cube) => {
     return [...cube];
 };
 
-export const copy_into = (src, dest) => {
+module.copy_into = (src, dest) => {
     src.forEach((elem, i) => {
         dest[i] = elem;
     });
 };
 
 // Convert a cube to a string
-export const to_string = (cube) => {
+module.to_string = (cube) => {
     //       U U U
     //       U U U
     //       U U U
@@ -266,44 +276,44 @@ export const to_string = (cube) => {
     );
 };
 
-export const for_each = (cube, func) => {
+module.for_each = (cube, func) => {
     cube.forEach(func);
 };
 
 // Get the face value at a position
-export const get_at = (cube, face, row, col) => {
+module.get_at = (cube, face, row, col) => {
     return cube[face * 3 * 3 + row * 3 + col];
 };
-export const get_at_index = (cube, index) => {
+module.get_at_index = (cube, index) => {
     return cube[index];
 };
 // Set the face value at a position
-export const set_at = (cube, face, row, col, value) => {
+module.set_at = (cube, face, row, col, value) => {
     cube[face * 3 * 3 + row * 3 + col] = value;
 }
-export const set_at_index = (cube, index, value) => {
+module.set_at_index = (cube, index, value) => {
     cube[index] = value;
 };
 
 // Get the center colors of a cube
-export const get_centers = (cube) => {
+module.get_centers = (cube) => {
     return ([0, 1, 2, 3, 4, 5]).map((face) => cube[face * 9 + 4]);
 };
 
 // Apply a rotation to the cube
-export const rotate = (cube, rotation) => {
+module.rotate = (cube, rotation) => {
     const dest = Array(9 * 6);
-    rotate_into(cube, dest, rotation);
-    copy_into(dest, cube);
+    module.rotate_into(cube, dest, rotation);
+    module.copy_into(dest, cube);
 };
-export const rotate_into = (cube, dest_cube, rotation) => {
+module.rotate_into = (cube, dest_cube, rotation) => {
     const index_data = cached_rotation_data[rotation];
     index_data.forEach((old_i, new_i) => {
         dest_cube[new_i] = cube[old_i];
     });
 }
 
-export const parse_rotations = (rotations_str) => {
+module.parse_rotations = (rotations_str) => {
     const valid = Object.keys(rotation).join('');
     const regex = new RegExp(`[${valid}](?:'|2)?`, 'g');
     const match = rotations_str.toUpperCase().match(regex);
@@ -330,10 +340,10 @@ export const parse_rotations = (rotations_str) => {
         return rot;
     }).filter((rotation) => rotation !== null);
 };
-export const rotations_to_string = (rotations) => {
-    return rotations.map(rotation_to_string).join(' ');
+module.rotations_to_string = (rotations) => {
+    return rotations.map(module.rotation_to_string).join(' ');
 };
-export const rotation_to_string = (rotation) => {
+module.rotation_to_string = (rotation) => {
     let suffix = '';
     if (rotation === 0) {
         return '?';
@@ -354,7 +364,7 @@ export const rotation_to_string = (rotation) => {
 }
 
 // Convert a rotation to its base form (e.g. R' => R, R2 => R)
-export const base_rotation = (rot) => {
+module.base_rotation = (rot) => {
     if (rot < 0) {
         rot *= -1;
     }
@@ -436,8 +446,11 @@ const rotate_face = (cube, face, ccw, twice) => {
 
 const cached_rotation_data = {};
 for (const mult of [1, -1, 2, -2]) {
-    for (const rot in rotation) {
-        const value = mult * rotation[rot];
+    for (const rot in module.rotation) {
+        const value = mult * module.rotation[rot];
         cached_rotation_data[value] = calculate_rotation_data(value);
     }
 }
+
+return module;
+})();
