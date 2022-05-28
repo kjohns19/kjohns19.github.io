@@ -219,7 +219,6 @@ const setup_solve_area = (grid) => {
     document.getElementById('allow_none_button').addEventListener('click', () => set_all(false));
 
     const max_moves_input = document.getElementById('max_moves');
-    const solutions_header = document.getElementById('solutions_header');
     const solutions_list = document.getElementById('solutions_list');
 
 
@@ -228,6 +227,8 @@ const setup_solve_area = (grid) => {
     const timer_label = document.getElementById('timer_label');
     const percent_label = document.getElementById('percent_label');
     const estimate_label = document.getElementById('estimate_label');
+
+    let num_solutions = 0;
 
     const time_data = {
         interval: null,
@@ -241,9 +242,9 @@ const setup_solve_area = (grid) => {
         return [hours, minutes, seconds].map((v) => v < 10 ? '0' + v : v).join(':');
     };
 
-    const start_solve = () => {
+    const on_start = () => {
         solutions_list.innerHTML = '';
-        solutions_header.innerText = '';
+        num_solutions = 0;
 
         solve_button.disabled = true;
         stop_button.disabled = false;
@@ -256,36 +257,20 @@ const setup_solve_area = (grid) => {
             timer_label.innerText = seconds_to_string(delta);
         }, 100);
     };
-    const stop_solve = () => {
+    const on_finish = () => {
         solve_button.disabled = false;
         stop_button.disabled = true;
         clearInterval(time_data.interval);
         percent_label.innerText = '';
         estimate_label.innerText = '';
-    };
-    const on_solve = (solutions) => {
-        for (const solution of solutions) {
+        if (num_solutions === 0) {
             const list_item = document.createElement('li');
-            if (solution.length === 0) {
-                list_item.innerText = 'Already solved!';
-            } else {
-                const solution_string = rubik.rotations_to_string(solution);
-                const encoded_solution = solution_string.replaceAll('\'', '-').replaceAll(' ', '_');
-                const url = 'https://alg.cubing.net/?type=alg&alg=' + encoded_solution;
-                const href = 'href="' + url + '" target="_blank" rel="noopener noreferrer"';
-                list_item.innerHTML = '<a ' + href + '>' + solution_string + '</a>';
-            }
+            list_item.innerText = 'No solutions!'
             solutions_list.appendChild(list_item);
-        };
-
-        if (solutions.length > 0) {
-            solutions_header.innerText = 'Solutions';
-        } else {
-            solutions_header.innerText = 'No solutions!';
         }
-        stop_solve();
     };
-    const on_percent = (percent) => {
+    const on_progress = (count, total) => {
+        const percent = count / total * 100;
         const floored = Math.floor(percent);
         percent_label.innerText = floored + '%';
 
@@ -293,19 +278,36 @@ const setup_solve_area = (grid) => {
         const estimate = Math.round(100 / percent * delta - delta);
         estimate_label.innerText = 'Estimated: ' + seconds_to_string(estimate);
     };
+    const on_solution = (solution) => {
+        const list_item = document.createElement('li');
+        if (solution.length === 0) {
+            list_item.innerText = 'Already solved!';
+        } else {
+            const solution_string = rubik.rotations_to_string(solution);
+            const encoded_solution = solution_string.replaceAll('\'', '-').replaceAll(' ', '_');
+            const url = 'https://alg.cubing.net/?type=alg&alg=' + encoded_solution;
+            const href = 'href="' + url + '" target="_blank" rel="noopener noreferrer"';
+            list_item.innerHTML = '<a ' + href + '>' + solution_string + '</a>';
+        }
+        solutions_list.appendChild(list_item);
+        num_solutions++;
+    };
 
     let worker;
     const recreate_worker = () => {
         worker = new Worker('worker.js');
 
         worker.addEventListener('error', (message) => {
-            stop_solve();
+            on_finish();
         });
         worker.addEventListener('message', (message) => {
-            if (message.data.solutions) {
-                on_solve(message.data.solutions);
-            } else if (message.data.percent) {
-                on_percent(message.data.percent);
+            if (message.data.progress) {
+                const progress = message.data.progress;
+                on_progress(progress.count, progress.total);
+            } else if (message.data.solution) {
+                on_solution(message.data.solution);
+            } else if (message.data.done) {
+                on_finish();
             }
         });
     };
@@ -321,12 +323,12 @@ const setup_solve_area = (grid) => {
             allowed_rotations: allowed_rotations,
             max_moves: max_moves
         });
-        start_solve();
+        on_start();
     });
     stop_button.addEventListener('click', () => {
         worker.terminate();
         recreate_worker();
-        stop_solve();
+        on_finish();
     });
 };
 

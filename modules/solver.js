@@ -2,10 +2,18 @@ const solver = (() => {
 const module = {};
 
 // Find solutions to a cube
-// Returns an array of the solutions (each solution is an array of rotations)
-// The array will contain a single empty array if the cube is already solved
-// The array will be empty if there are no solutions
-module.solve = (cube, allowed_rotations, max_moves, progress_callback) => {
+// Calls the callback regularly with an object of this format:
+// {
+//     progress: {
+//         count: <number of moves made (number)>
+//         total: <total number of moves to make (number)>
+//     }
+// }
+// When a solution is found the callback is called with an object of this format:
+// {
+//     solution: <moves (array of rotations)>
+// }
+module.solve = (cube, allowed_rotations, max_moves, callback) => {
     // The solved cube has the same centers as the scrambled one
     // so no full rotations are needed
     const solved_cube = rubik.create(rubik.get_centers(cube));
@@ -27,10 +35,7 @@ module.solve = (cube, allowed_rotations, max_moves, progress_callback) => {
     const progress = {
         total: move_counts[null][0],
         count: 0,
-        last_percent: -1,
-        callback: progress_callback
     };
-    const solutions = [];
 
     // Returns the max depth that should be checked for future calls
     const solve_impl = (current_move_set, depth) => {
@@ -51,12 +56,19 @@ module.solve = (cube, allowed_rotations, max_moves, progress_callback) => {
             // Add the solution if it's solved, otherwise try more moves
             const solved = rubik.is_equal_with_ignored(next_cube, solved_cube);
             if (solved) {
-                solutions.push(moves.slice(0, depth));
+                callback({
+                    solution: moves.slice(0, depth)
+                });
             } else {
                 const next_max_moves = solve_impl(current_move_set[rotation], depth + 1);
-                if (depth + 5 === max_moves && progress.callback) {
+                if (depth + 5 === max_moves) {
                     progress.count += move_counts[rotation][depth] || 0;
-                    progress.callback(progress.count, progress.total);
+                    callback({
+                        progress: {
+                            count: progress.count,
+                            total: progress.total
+                        }
+                    });
                 }
                 max_moves = next_max_moves;
             }
@@ -72,10 +84,6 @@ module.solve = (cube, allowed_rotations, max_moves, progress_callback) => {
     };
 
     solve_impl(move_set, 1);
-
-    // Return solutions of minimum length
-    const min_length = Math.min(...solutions.map((solution) => solution.length));
-    return solutions.filter((solution) => solution.length === min_length);
 };
 
 const count_moves = (move_set, max_depth) => {
