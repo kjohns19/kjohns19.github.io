@@ -229,7 +229,8 @@ const setup_solve_area = (grid) => {
     const estimate_label = document.getElementById('estimate_label');
     const error_label = document.getElementById('error_label');
 
-    let num_solutions = 0;
+    const solutions = [];
+    const solutions_li = [];
 
     const time_data = {
         interval: null,
@@ -245,7 +246,8 @@ const setup_solve_area = (grid) => {
 
     const on_start = () => {
         solutions_list.innerHTML = '';
-        num_solutions = 0;
+        solutions.length = 0;
+        solutions_li.length = 0;
 
         solve_button.disabled = true;
         stop_button.disabled = false;
@@ -265,7 +267,7 @@ const setup_solve_area = (grid) => {
         clearInterval(time_data.interval);
         percent_label.innerText = '';
         estimate_label.innerText = '';
-        if (num_solutions === 0) {
+        if (solutions.length === 0) {
             const list_item = document.createElement('li');
             list_item.innerText = 'No solutions!'
             solutions_list.appendChild(list_item);
@@ -291,8 +293,20 @@ const setup_solve_area = (grid) => {
             const href = 'href="' + url + '" target="_blank" rel="noopener noreferrer"';
             list_item.innerHTML = '<a ' + href + '>' + solution_string + '</a>';
         }
-        solutions_list.appendChild(list_item);
-        num_solutions++;
+        let i;
+        for (i = solutions.length; i != 0; i--) {
+            const elem = solutions[i - 1];
+            if (elem.length <= solution.length) {
+                break;
+            }
+        }
+        solutions.splice(i, 0, solution);
+        if (solutions_li.length === 0) {
+            solutions_list.appendChild(list_item);
+        } else {
+            solutions_list.insertBefore(list_item, solutions_li[i]);
+        }
+        solutions_li.splice(i, 0, list_item);
     };
 
     let worker;
