@@ -38,11 +38,6 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
     };
 
     const solve_impl = (current_move_set, depth) => {
-        // Base case - no moves left
-        if (depth > max_moves) {
-            return;
-        }
-
         const cube = cubes[depth - 1];
         const next_cube = cubes[depth];
 
@@ -58,7 +53,11 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
                     solution: moves.slice(0, depth)
                 });
             } else {
-                solve_impl(current_move_set[rotation], depth + 1);
+                if (depth + 5 > max_moves) {
+                    solve_impl_fast(current_move_set[rotation], depth + 1);
+                } else {
+                    solve_impl(current_move_set[rotation], depth + 1);
+                }
             }
 
             if (depth + 5 === max_moves) {
@@ -75,8 +74,35 @@ module.solve = (cube, allowed_rotations, max_moves, callback) => {
             }
         }
     };
+    // A version of solve_impl with less checks since it's hit much more often
+    const solve_impl_fast = (current_move_set, depth) => {
+        const cube = cubes[depth - 1];
+        const next_cube = cubes[depth];
 
-    solve_impl(move_set, 1);
+        for (const rotation in current_move_set) {
+            // Make the move
+            rubik.rotate_into(cube, next_cube, rotation);
+            moves[depth - 1] = rotation;
+
+            // Add the solution if it's solved, otherwise try more moves
+            if (rubik.is_equal_with_ignored(next_cube, solved_cube)) {
+                callback({
+                    solution: moves.slice(0, depth)
+                });
+                break;
+            } else if (depth < max_moves) {
+                solve_impl_fast(current_move_set[rotation], depth + 1);
+            }
+        }
+    }
+
+    if (max_moves <= 0) {
+        return;
+    } else if (max_moves <= 5) {
+        solve_impl_fast(move_set, 1);
+    } else {
+        solve_impl(move_set, 1);
+    }
 };
 
 const count_moves = (move_set, max_depth) => {
