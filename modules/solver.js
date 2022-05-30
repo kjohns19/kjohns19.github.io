@@ -20,7 +20,10 @@ solver.solve = (cube, allowed_rotations, max_moves, callback) => {
 
     // Check if it's already solved
     if (rubik.is_equal_with_ignored(cube, solved_cube)) {
-        return [[]];
+        callback({
+            solution: []
+        });
+        return;
     }
 
     // Each move will work with the previous move's resulting cube and write into another one
