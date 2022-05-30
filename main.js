@@ -1,7 +1,7 @@
 const main = (() => {
-const module = {};
+const main = {};
 
-module.main = () => {
+main.main = () => {
     setup_theme();
     const cube = rubik.create();
     const color_select = create_color_selector();
@@ -359,7 +359,7 @@ const create_rotations_grid = (xyz) => {
     return mults.map((mult) => rotations.map((rotation) => rubik.rotation[rotation] * mult));
 };
 
-return module;
+return main;
 })();
 
 main.main();

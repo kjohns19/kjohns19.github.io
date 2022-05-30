@@ -1,5 +1,5 @@
 const solver = (() => {
-const module = {};
+const solver = {};
 
 // Find solutions to a cube
 // Calls the callback regularly with an object of this format:
@@ -13,7 +13,7 @@ const module = {};
 // {
 //     solution: <moves (array of rotations)>
 // }
-module.solve = (cube, allowed_rotations, max_moves, callback) => {
+solver.solve = (cube, allowed_rotations, max_moves, callback) => {
     // The solved cube has the same centers as the scrambled one
     // so no full rotations are needed
     const solved_cube = rubik.create(rubik.get_centers(cube));
@@ -215,5 +215,5 @@ const get_axis = (rotation) => {
     }
 };
 
-return module;
+return solver;
 })();
