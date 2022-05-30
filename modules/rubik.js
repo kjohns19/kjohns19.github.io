@@ -38,136 +38,6 @@ module.rotation = {
     Z: 23,
 };
 
-// Private constants
-
-const range = (a, b, step) => {
-    if (step === undefined) {
-        step = (b >= a) ? 1 : -1;
-    }
-    const length = Math.ceil((b - a) / step);
-    if (length <= 0) {
-        return [];
-    }
-    return Array.from({length: length}, (_, i) => a + i * step);
-};
-
-const off = {
-    u: module.face.UP * 9,
-    l: module.face.LEFT * 9,
-    f: module.face.FRONT * 9,
-    r: module.face.RIGHT * 9,
-    b: module.face.BACK * 9,
-    d: module.face.DOWN * 9,
-};
-
-const rotate_data = [];
-rotate_data[module.rotation.F] = {
-    name: 'F',
-    face: module.face.FRONT,
-    indices: [
-        off.u + 6, off.u + 7, off.u + 8, off.r + 0, off.r + 3, off.r + 6,
-        off.d + 2, off.d + 1, off.d + 0, off.l + 8, off.l + 5, off.l + 2,
-    ],
-};
-rotate_data[module.rotation.B] = {
-    name: 'B',
-    face: module.face.BACK,
-    indices: [
-        off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
-        off.d + 6, off.d + 7, off.d + 8, off.r + 8, off.r + 5, off.r + 2,
-    ],
-};
-rotate_data[module.rotation.R] = {
-    name: 'R',
-    face: module.face.RIGHT,
-    indices: [
-        off.u + 8, off.u + 5, off.u + 2, off.b + 0, off.b + 3, off.b + 6,
-        off.d + 8, off.d + 5, off.d + 2, off.f + 8, off.f + 5, off.f + 2,
-    ],
-};
-rotate_data[module.rotation.L] = {
-    name: 'L',
-    face: module.face.LEFT,
-    indices: [
-        off.u + 0, off.u + 3, off.u + 6, off.f + 0, off.f + 3, off.f + 6,
-        off.d + 0, off.d + 3, off.d + 6, off.b + 8, off.b + 5, off.b + 2,
-    ],
-};
-rotate_data[module.rotation.U] = {
-    name: 'U',
-    face: module.face.UP,
-    indices: [
-        off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
-        off.f + 2, off.f + 1, off.f + 0, off.l + 2, off.l + 1, off.l + 0,
-    ],
-};
-rotate_data[module.rotation.D] = {
-    name: 'D',
-    face: module.face.DOWN,
-    indices: [
-        off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
-        off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
-    ],
-};
-rotate_data[module.rotation.M] = {
-    name: 'M',
-    indices: [
-        off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
-        off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
-    ],
-};
-rotate_data[module.rotation.E] = {
-    name: 'E',
-    indices: [
-        off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
-        off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
-    ],
-};
-rotate_data[module.rotation.S] = {
-    name: 'S',
-    indices: [
-        off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
-        off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
-    ],
-};
-rotate_data[module.rotation.X] = {
-    name: 'X',
-    face: module.face.RIGHT,
-    ccw_face: module.face.LEFT,
-    indices: [
-        ...range(off.b + 8, off.b - 1),
-        ...range(off.d + 0, off.d + 9),
-        ...range(off.f + 0, off.f + 9),
-        ...range(off.u + 0, off.u + 9),
-    ],
-};
-rotate_data[module.rotation.Y] = {
-    name: 'Y',
-    face: module.face.UP,
-    ccw_face: module.face.DOWN,
-    indices: [
-        ...range(off.r + 0, off.r + 9),
-        ...range(off.f + 0, off.f + 9),
-        ...range(off.l + 0, off.l + 9),
-        ...range(off.b + 0, off.b + 9),
-    ],
-};
-rotate_data[module.rotation.Z] = {
-    name: 'Z',
-    face: module.face.FRONT,
-    ccw_face: module.face.BACK,
-    indices: [
-        ...range(off.l + 0, off.l + 9),
-        ...[off.u + 2, off.u + 5, off.u + 8,
-            off.u + 1, off.u + 4, off.u + 7,
-            off.u + 0, off.u + 3, off.u + 6],
-        ...range(off.r + 8, off.r - 1),
-        ...[off.d + 6, off.d + 3, off.d + 0,
-            off.d + 7, off.d + 4, off.d + 1,
-            off.d + 8, off.d + 5, off.d + 2],
-    ],
-};
-
 // Public functions
 
 // Create a cube
@@ -328,6 +198,136 @@ module.base_rotation = (rot) => {
         rot /= 2;
     }
     return rot;
+};
+
+// Private constants
+
+const range = (a, b, step) => {
+    if (step === undefined) {
+        step = (b >= a) ? 1 : -1;
+    }
+    const length = Math.ceil((b - a) / step);
+    if (length <= 0) {
+        return [];
+    }
+    return Array.from({length: length}, (_, i) => a + i * step);
+};
+
+const off = {
+    u: module.face.UP * 9,
+    l: module.face.LEFT * 9,
+    f: module.face.FRONT * 9,
+    r: module.face.RIGHT * 9,
+    b: module.face.BACK * 9,
+    d: module.face.DOWN * 9,
+};
+
+const rotate_data = [];
+rotate_data[module.rotation.F] = {
+    name: 'F',
+    face: module.face.FRONT,
+    indices: [
+        off.u + 6, off.u + 7, off.u + 8, off.r + 0, off.r + 3, off.r + 6,
+        off.d + 2, off.d + 1, off.d + 0, off.l + 8, off.l + 5, off.l + 2,
+    ],
+};
+rotate_data[module.rotation.B] = {
+    name: 'B',
+    face: module.face.BACK,
+    indices: [
+        off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
+        off.d + 6, off.d + 7, off.d + 8, off.r + 8, off.r + 5, off.r + 2,
+    ],
+};
+rotate_data[module.rotation.R] = {
+    name: 'R',
+    face: module.face.RIGHT,
+    indices: [
+        off.u + 8, off.u + 5, off.u + 2, off.b + 0, off.b + 3, off.b + 6,
+        off.d + 8, off.d + 5, off.d + 2, off.f + 8, off.f + 5, off.f + 2,
+    ],
+};
+rotate_data[module.rotation.L] = {
+    name: 'L',
+    face: module.face.LEFT,
+    indices: [
+        off.u + 0, off.u + 3, off.u + 6, off.f + 0, off.f + 3, off.f + 6,
+        off.d + 0, off.d + 3, off.d + 6, off.b + 8, off.b + 5, off.b + 2,
+    ],
+};
+rotate_data[module.rotation.U] = {
+    name: 'U',
+    face: module.face.UP,
+    indices: [
+        off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
+        off.f + 2, off.f + 1, off.f + 0, off.l + 2, off.l + 1, off.l + 0,
+    ],
+};
+rotate_data[module.rotation.D] = {
+    name: 'D',
+    face: module.face.DOWN,
+    indices: [
+        off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
+        off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
+    ],
+};
+rotate_data[module.rotation.M] = {
+    name: 'M',
+    indices: [
+        off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
+        off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
+    ],
+};
+rotate_data[module.rotation.E] = {
+    name: 'E',
+    indices: [
+        off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
+        off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
+    ],
+};
+rotate_data[module.rotation.S] = {
+    name: 'S',
+    indices: [
+        off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
+        off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
+    ],
+};
+rotate_data[module.rotation.X] = {
+    name: 'X',
+    face: module.face.RIGHT,
+    ccw_face: module.face.LEFT,
+    indices: [
+        ...range(off.b + 8, off.b - 1),
+        ...range(off.d + 0, off.d + 9),
+        ...range(off.f + 0, off.f + 9),
+        ...range(off.u + 0, off.u + 9),
+    ],
+};
+rotate_data[module.rotation.Y] = {
+    name: 'Y',
+    face: module.face.UP,
+    ccw_face: module.face.DOWN,
+    indices: [
+        ...range(off.r + 0, off.r + 9),
+        ...range(off.f + 0, off.f + 9),
+        ...range(off.l + 0, off.l + 9),
+        ...range(off.b + 0, off.b + 9),
+    ],
+};
+rotate_data[module.rotation.Z] = {
+    name: 'Z',
+    face: module.face.FRONT,
+    ccw_face: module.face.BACK,
+    indices: [
+        ...range(off.l + 0, off.l + 9),
+        ...[off.u + 2, off.u + 5, off.u + 8,
+            off.u + 1, off.u + 4, off.u + 7,
+            off.u + 0, off.u + 3, off.u + 6],
+        ...range(off.r + 8, off.r - 1),
+        ...[off.d + 6, off.d + 3, off.d + 0,
+            off.d + 7, off.d + 4, off.d + 1,
+            off.d + 8, off.d + 5, off.d + 2],
+    ],
 };
 
 // Private functions
