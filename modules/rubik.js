@@ -239,58 +239,11 @@ module.copy_into = (src, dest) => {
     });
 };
 
-// Convert a cube to a string
-module.to_string = (cube) => {
-    //       U U U
-    //       U U U
-    //       U U U
-    // L L L F F F R R R B B B
-    // L L L F F F R R R B B B
-    // L L L F F F R R R B B B
-    //       D D D
-    //       D D D
-    //       D D D
-    return (
-        '      ' + cube[off.u + 0] + ' ' + cube[off.u + 1] + ' ' + cube[off.u + 2] + '\n' +
-        '      ' + cube[off.u + 3] + ' ' + cube[off.u + 4] + ' ' + cube[off.u + 5] + '\n' +
-        '      ' + cube[off.u + 6] + ' ' + cube[off.u + 7] + ' ' + cube[off.u + 8] + '\n' +
-
-        cube[off.l + 0] + ' ' + cube[off.l + 1] + ' ' + cube[off.l + 2] + ' ' +
-        cube[off.f + 0] + ' ' + cube[off.f + 1] + ' ' + cube[off.f + 2] + ' ' +
-        cube[off.r + 0] + ' ' + cube[off.r + 1] + ' ' + cube[off.r + 2] + ' ' +
-        cube[off.b + 0] + ' ' + cube[off.b + 1] + ' ' + cube[off.b + 2] + '\n' +
-
-        cube[off.l + 3] + ' ' + cube[off.l + 4] + ' ' + cube[off.l + 5] + ' ' +
-        cube[off.f + 3] + ' ' + cube[off.f + 4] + ' ' + cube[off.f + 5] + ' ' +
-        cube[off.r + 3] + ' ' + cube[off.r + 4] + ' ' + cube[off.r + 5] + ' ' +
-        cube[off.b + 3] + ' ' + cube[off.b + 4] + ' ' + cube[off.b + 5] + '\n' +
-
-        cube[off.l + 6] + ' ' + cube[off.l + 7] + ' ' + cube[off.l + 8] + ' ' +
-        cube[off.f + 6] + ' ' + cube[off.f + 7] + ' ' + cube[off.f + 8] + ' ' +
-        cube[off.r + 6] + ' ' + cube[off.r + 7] + ' ' + cube[off.r + 8] + ' ' +
-        cube[off.b + 6] + ' ' + cube[off.b + 7] + ' ' + cube[off.b + 8] + '\n' +
-
-        '      ' + cube[off.d + 0] + ' ' + cube[off.d + 1] + ' ' + cube[off.d + 2] + '\n' +
-        '      ' + cube[off.d + 3] + ' ' + cube[off.d + 4] + ' ' + cube[off.d + 5] + '\n' +
-        '      ' + cube[off.d + 6] + ' ' + cube[off.d + 7] + ' ' + cube[off.d + 8] + '\n'
-    );
-};
-
 module.for_each = (cube, func) => {
     cube.forEach(func);
 };
 
-// Get the face value at a position
-module.get_at = (cube, face, row, col) => {
-    return cube[face * 3 * 3 + row * 3 + col];
-};
-module.get_at_index = (cube, index) => {
-    return cube[index];
-};
 // Set the face value at a position
-module.set_at = (cube, face, row, col, value) => {
-    cube[face * 3 * 3 + row * 3 + col] = value;
-};
 module.set_at_index = (cube, index, value) => {
     cube[index] = value;
 };

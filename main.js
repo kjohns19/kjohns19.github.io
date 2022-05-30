@@ -4,7 +4,6 @@ const module = {};
 module.main = () => {
     setup_theme();
     const cube = rubik.create();
-    console.log(rubik.to_string(cube));
     const color_select = create_color_selector();
     const grid = create_grid(cube, color_select);
     setup_input_area(grid);
