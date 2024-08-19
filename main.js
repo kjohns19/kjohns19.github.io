@@ -148,7 +148,7 @@ const setup_input_area = (grid) => {
 
     const table = document.createElement('table');
     table.className = 'buttons';
-    for (const rotation_row of create_rotations_grid(true)) {
+    for (const rotation_row of create_rotations_grid(true, true)) {
         const row = table.insertRow();
         for (const rotation of rotation_row) {
             const cell = row.insertCell();
@@ -348,8 +348,13 @@ const setup_solve_area = (grid) => {
     });
 };
 
-const create_rotations_grid = (xyz) => {
+const create_rotations_grid = (mes, xyz) => {
     const rotations = ['R', 'L', 'F', 'B', 'U', 'D'];
+    if (mes) {
+        rotations.push('M');
+        rotations.push('E');
+        rotations.push('S');
+    }
     if (xyz) {
         rotations.push('X');
         rotations.push('Y');
