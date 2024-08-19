@@ -140,7 +140,7 @@ rubik.rotate_into = (cube, dest_cube, rotation) => {
 };
 
 rubik.parse_rotations = (rotations_str) => {
-    const valid = Object.keys(rotation).join('');
+    const valid = Object.keys(rubik.rotation).join('');
     const regex = new RegExp(`[${valid}](?:'|2)?`, 'g');
     const match = rotations_str.toUpperCase().match(regex);
     if (match === null) {
@@ -150,7 +150,7 @@ rubik.parse_rotations = (rotations_str) => {
         if (rotation_str.length === 0 || rotation_str.length > 2) {
             return null;
         }
-        let rot = rotation[rotation_str[0]];
+        let rot = rubik.rotation[rotation_str[0]];
         if (rot === undefined) {
             return null;
         }
