@@ -182,7 +182,7 @@ rubik.rotation_to_string = (rotation) => {
         rotation /= 2;
         suffix = '2';
     }
-    const data = rotate_data[rotation];
+    const data = rotation_data[rotation];
     if (data === undefined) {
         return '?';
     }
@@ -200,7 +200,74 @@ rubik.base_rotation = (rot) => {
     return rot;
 };
 
-// Private constants
+// Private constants and functions
+
+// Rotate a face clockwise or counter-clockwise
+const rotate_face = (cube, face, ccw) => {
+    const offset = face * 9;
+    const new_face = [
+        cube[offset + 6],
+        cube[offset + 3],
+        cube[offset + 0],
+        cube[offset + 7],
+        cube[offset + 4],
+        cube[offset + 1],
+        cube[offset + 8],
+        cube[offset + 5],
+        cube[offset + 2],
+    ];
+    if (ccw) {
+        new_face.reverse();
+    }
+    for (let i = 0; i < 9; i++) {
+        cube[offset + i] = new_face[i];
+    }
+};
+
+const rotation_data = {};
+
+const apply_index_transform = (cube_data, indices) => {
+    const cube_index_data = indices.map((i) => cube_data[i]);
+    const len = indices.length;
+    const stride = len / 4;
+    for (let i = 0; i < len; i++) {
+        cube_data[indices[(i + stride) % len]] = cube_index_data[i];
+    }
+}
+
+const make_identity_rotation = () => {
+    return [...Array(9 * 6).keys()];
+}
+
+// Make a rotation for a single face
+const make_face_rotation = (face, indices) => {
+    const cube_data = make_identity_rotation();
+    rotate_face(cube_data, face, false);
+    apply_index_transform(cube_data, indices);
+    return cube_data;
+};
+
+// Make a rotation for the whole cube
+const make_cube_rotation = (face, ccw_face, indices) => {
+    const cube_data = make_identity_rotation();
+    rotate_face(cube_data, face, false);
+    rotate_face(cube_data, ccw_face, true);
+    apply_index_transform(cube_data, indices);
+    return cube_data;
+};
+
+// Combine multiple rotations into a single one
+const make_composed_rotation = (rotations) => {
+    const cube_data = make_identity_rotation();
+    for (const rot of rotations.split(' ')) {
+        const copy = [...cube_data];
+        const rot_data = rotation_data[rot].rotation;
+        for (let i = 0; i < rot_data.length; i++) {
+            cube_data[i] = copy[rot_data[i]];
+        }
+    }
+    return cube_data;
+};
 
 const range = (a, b, step) => {
     if (step === undefined) {
@@ -222,191 +289,72 @@ const off = {
     d: rubik.face.DOWN * 9,
 };
 
-const rotate_data = [];
-rotate_data[rubik.rotation.F] = {
-    name: 'F',
-    face: rubik.face.FRONT,
-    indices: [
+// Define F, X, and Y on their own. The rest of the rotations can be defined entirely from them
+rotation_data['F'] = {
+    rotation: make_face_rotation(rubik.face.FRONT, [
         off.u + 6, off.u + 7, off.u + 8, off.r + 0, off.r + 3, off.r + 6,
         off.d + 2, off.d + 1, off.d + 0, off.l + 8, off.l + 5, off.l + 2,
-    ],
+    ])
 };
-rotate_data[rubik.rotation.B] = {
-    name: 'B',
-    face: rubik.face.BACK,
-    indices: [
-        off.u + 2, off.u + 1, off.u + 0, off.l + 0, off.l + 3, off.l + 6,
-        off.d + 6, off.d + 7, off.d + 8, off.r + 8, off.r + 5, off.r + 2,
-    ],
-};
-rotate_data[rubik.rotation.R] = {
-    name: 'R',
-    face: rubik.face.RIGHT,
-    indices: [
-        off.u + 8, off.u + 5, off.u + 2, off.b + 0, off.b + 3, off.b + 6,
-        off.d + 8, off.d + 5, off.d + 2, off.f + 8, off.f + 5, off.f + 2,
-    ],
-};
-rotate_data[rubik.rotation.L] = {
-    name: 'L',
-    face: rubik.face.LEFT,
-    indices: [
-        off.u + 0, off.u + 3, off.u + 6, off.f + 0, off.f + 3, off.f + 6,
-        off.d + 0, off.d + 3, off.d + 6, off.b + 8, off.b + 5, off.b + 2,
-    ],
-};
-rotate_data[rubik.rotation.U] = {
-    name: 'U',
-    face: rubik.face.UP,
-    indices: [
-        off.b + 2, off.b + 1, off.b + 0, off.r + 2, off.r + 1, off.r + 0,
-        off.f + 2, off.f + 1, off.f + 0, off.l + 2, off.l + 1, off.l + 0,
-    ],
-};
-rotate_data[rubik.rotation.D] = {
-    name: 'D',
-    face: rubik.face.DOWN,
-    indices: [
-        off.f + 6, off.f + 7, off.f + 8, off.r + 6, off.r + 7, off.r + 8,
-        off.b + 6, off.b + 7, off.b + 8, off.l + 6, off.l + 7, off.l + 8,
-    ],
-};
-rotate_data[rubik.rotation.M] = {
-    name: 'M',
-    indices: [
-        off.u + 1, off.u + 4, off.u + 7, off.f + 1, off.f + 4, off.f + 7,
-        off.d + 1, off.d + 4, off.d + 7, off.b + 7, off.b + 4, off.b + 1,
-    ],
-};
-rotate_data[rubik.rotation.E] = {
-    name: 'E',
-    indices: [
-        off.f + 3, off.f + 4, off.f + 5, off.r + 3, off.r + 4, off.r + 5,
-        off.b + 3, off.b + 4, off.b + 5, off.l + 3, off.l + 4, off.l + 5,
-    ],
-};
-rotate_data[rubik.rotation.S] = {
-    name: 'S',
-    indices: [
-        off.u + 3, off.u + 4, off.u + 5, off.r + 1, off.r + 4, off.r + 7,
-        off.d + 5, off.d + 4, off.d + 3, off.l + 7, off.l + 4, off.l + 1,
-    ],
-};
-rotate_data[rubik.rotation.X] = {
-    name: 'X',
-    face: rubik.face.RIGHT,
-    ccw_face: rubik.face.LEFT,
-    indices: [
+rotation_data['X'] = {
+    rotation: make_cube_rotation(rubik.face.RIGHT, rubik.face.LEFT, [
         ...range(off.b + 8, off.b - 1),
         ...range(off.d + 0, off.d + 9),
         ...range(off.f + 0, off.f + 9),
         ...range(off.u + 0, off.u + 9),
-    ],
+    ])
 };
-rotate_data[rubik.rotation.Y] = {
-    name: 'Y',
-    face: rubik.face.UP,
-    ccw_face: rubik.face.DOWN,
-    indices: [
+rotation_data['Y'] = {
+    rotation: make_cube_rotation(rubik.face.UP, rubik.face.DOWN, [
         ...range(off.r + 0, off.r + 9),
         ...range(off.f + 0, off.f + 9),
         ...range(off.l + 0, off.l + 9),
         ...range(off.b + 0, off.b + 9),
-    ],
+    ])
 };
-rotate_data[rubik.rotation.Z] = {
-    name: 'Z',
-    face: rubik.face.FRONT,
-    ccw_face: rubik.face.BACK,
-    indices: [
-        ...range(off.l + 0, off.l + 9),
-        ...[off.u + 2, off.u + 5, off.u + 8,
-            off.u + 1, off.u + 4, off.u + 7,
-            off.u + 0, off.u + 3, off.u + 6],
-        ...range(off.r + 8, off.r - 1),
-        ...[off.d + 6, off.d + 3, off.d + 0,
-            off.d + 7, off.d + 4, off.d + 1,
-            off.d + 8, off.d + 5, off.d + 2],
-    ],
+rotation_data['Z'] = {
+    rotation: make_composed_rotation('X Y X X X')
 };
-
-// Private functions
-
-// Calculate the index data for a rotation
-const calculate_rotation_data = (rotation) => {
-    const cube_data = [...Array(9 * 6).keys()];
-
-    // Double the rotation value to rotate twice (e.g. 2*rotation.F)
-    const twice = rotation % 2 === 0;
-    if (twice) {
-        rotation = Math.abs(rotation / 2);
-    }
-
-    // Negate the rotation to rotate counter-clockwise (e.g. -rotation.F)
-    const ccw = (rotation < 0);
-    const abs_rotation = Math.abs(rotation);
-    const data = rotate_data[abs_rotation];
-    if (data.face !== undefined) {
-        rotate_face(cube_data, data.face, ccw, twice);
-    }
-    if (data.ccw_face !== undefined) {
-        rotate_face(cube_data, data.ccw_face, !ccw, twice);
-    }
-    const cube_index_data = data.indices.map((i) => cube_data[i]);
-
-    const len = data.indices.length;
-    const stride = len / 4;
-    const offset = stride * (ccw ? 3 : twice ? 2 : 1);
-    for (let i = 0; i < len; i++) {
-        cube_data[data.indices[(i + offset) % len]] = cube_index_data[i];
-    }
-    return cube_data;
+rotation_data['B'] = {
+    rotation: make_composed_rotation('X X F X X')
 };
-
-// Rotate a face clockwise or counter-clockwise
-const rotate_face = (cube, face, ccw, twice) => {
-    const offset = face * 9;
-    let new_face;
-    if (twice) {
-        new_face = [
-            cube[offset + 8],
-            cube[offset + 7],
-            cube[offset + 6],
-            cube[offset + 5],
-            cube[offset + 4],
-            cube[offset + 3],
-            cube[offset + 2],
-            cube[offset + 1],
-            cube[offset + 0],
-        ];
-    } else {
-        new_face = [
-            cube[offset + 6],
-            cube[offset + 3],
-            cube[offset + 0],
-            cube[offset + 7],
-            cube[offset + 4],
-            cube[offset + 1],
-            cube[offset + 8],
-            cube[offset + 5],
-            cube[offset + 2],
-        ];
-    }
-    if (ccw) {
-        new_face.reverse();
-    }
-    for (let i = 0; i < 9; i++) {
-        cube[offset + i] = new_face[i];
-    }
+rotation_data['U'] = {
+    rotation: make_composed_rotation('X X X F X')
+};
+rotation_data['D'] = {
+    rotation: make_composed_rotation('X F X X X')
+};
+rotation_data['L'] = {
+    rotation: make_composed_rotation('Y Y Y F Y')
+};
+rotation_data['R'] = {
+    rotation: make_composed_rotation('Y F Y Y Y')
+};
+rotation_data['M'] = {
+    rotation: make_composed_rotation('X X X R L L L')
+};
+rotation_data['E'] = {
+    rotation: make_composed_rotation('Y Y Y U D D D')
+};
+rotation_data['S'] = {
+    rotation: make_composed_rotation('Z B F F F')
 };
 
 const cached_rotation_data = {};
-for (const mult of [1, -1, 2, -2]) {
-    for (const rot in rubik.rotation) {
-        const value = mult * rubik.rotation[rot];
-        cached_rotation_data[value] = calculate_rotation_data(value);
-    }
-};
+for (const rot in rubik.rotation) {
+    const val = rubik.rotation[rot];
+
+    const rotation_entry = rotation_data[rot];
+    rotation_data[val] = rotation_entry;
+
+    rotation_entry.name = rot;
+    rotation_entry.value = val;
+
+    cached_rotation_data[val] = rotation_entry.rotation;
+    cached_rotation_data[-val] = make_composed_rotation(`${rot} ${rot} ${rot}`);
+    cached_rotation_data[val * 2] = make_composed_rotation(`${rot} ${rot}`);
+    cached_rotation_data[val * -2] = cached_rotation_data[val * 2];
+}
 
 return rubik;
 })();
