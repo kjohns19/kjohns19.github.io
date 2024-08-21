@@ -12,7 +12,7 @@ rubik.face = {
     DOWN: 5,
 };
 rubik.color = {
-    DONT_CARE: 0,
+    DONT_CARE: -1,
     WHITE: 1,
     ORANGE: 2,
     GREEN: 3,
@@ -57,6 +57,7 @@ rubik.create = (centers) => {
     // R => indices 27-35
     // B => indices 36-44
     // D => indices 45-53
+    // Center orientation of each face => indices 54-59
     if (centers === undefined) {
         centers = [
             rubik.color.WHITE,
@@ -74,6 +75,7 @@ rubik.create = (centers) => {
         ...Array(9).fill(centers[3]),
         ...Array(9).fill(centers[4]),
         ...Array(9).fill(centers[5]),
+        ...Array(6).fill(0),
     ];
 };
 
@@ -86,6 +88,9 @@ rubik.reset = (cube) => {
 // Clear a cube
 rubik.clear = (cube) => {
     cube.fill(rubik.color.DONT_CARE);
+    for (let i = 0; i < 6; i++) {
+        cube[54 + i] = 0;
+    }
 };
 
 // Returns whether two cubes are equal
@@ -110,7 +115,9 @@ rubik.copy_into = (src, dest) => {
 };
 
 rubik.for_each = (cube, func) => {
-    cube.forEach(func);
+    // Only loop over the pieces, not the rotation data
+    for (let i = 0; i < 54; i++)
+        func(cube[i], i, cube);  // Called the same Array.forEach does it
 };
 
 // Set the face value at a position
@@ -123,19 +130,36 @@ rubik.get_centers = (cube) => {
     return ([0, 1, 2, 3, 4, 5]).map((face) => cube[face * 9 + 4]);
 };
 
+// Get the center orientations of a cube
+rubik.get_center_orientations = (cube) => {
+    return ([0, 1, 2, 3, 4, 5]).map((face) => cube[9 * 6 + face]);
+};
+
 // Apply a rotation to the cube
 rubik.rotate = (cube, rotation) => {
-    const dest = Array(9 * 6);
+    const dest = Array(9 * 6 + 6);
     rubik.rotate_into(cube, dest, rotation);
     rubik.copy_into(dest, cube);
 };
 rubik.rotate_into = (cube, dest_cube, rotation) => {
-    // This function is called *very* often, so we use a traditional for loop for performance
+    // This function is called *very* often, so we use traditional for loops for performance
+    const rotation_data = cached_rotation_data[rotation];
+    const indices = rotation_data.indices;
+    const centers = rotation_data.centers;
+    const center_rotations = rotation_data.center_rotations;
+
     // We know exactly how long the array is so we hard code the length
     // (54 = 3 * 3 * 6 = number of tiles on a cube)
-    const index_data = cached_rotation_data[rotation];
     for (let i = 0; i < 54; i++) {
-        dest_cube[i] = cube[index_data[i]];
+        dest_cube[i] = cube[indices[i]];
+    }
+    for (let i = 0; i < 6; i++) {
+        dest_cube[54 + i] = cube[54 + centers[i]];
+    }
+    for (let i = 0; i < center_rotations.length; i += 2) {
+        const idx = center_rotations[i];
+        const amount = center_rotations[i + 1];
+        dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
     }
 };
 
@@ -202,71 +226,100 @@ rubik.base_rotation = (rot) => {
 
 // Private constants and functions
 
+const rotation_data = {};
+
 // Rotate a face clockwise or counter-clockwise
-const rotate_face = (cube, face, ccw) => {
+const rotate_face = (rotation, face, ccw) => {
+    const indices = rotation.indices;
     const offset = face * 9;
     const new_face = [
-        cube[offset + 6],
-        cube[offset + 3],
-        cube[offset + 0],
-        cube[offset + 7],
-        cube[offset + 4],
-        cube[offset + 1],
-        cube[offset + 8],
-        cube[offset + 5],
-        cube[offset + 2],
+        indices[offset + 6],
+        indices[offset + 3],
+        indices[offset + 0],
+        indices[offset + 7],
+        indices[offset + 4],
+        indices[offset + 1],
+        indices[offset + 8],
+        indices[offset + 5],
+        indices[offset + 2],
     ];
     if (ccw) {
         new_face.reverse();
     }
     for (let i = 0; i < 9; i++) {
-        cube[offset + i] = new_face[i];
+        indices[offset + i] = new_face[i];
     }
+    rotation.center_rotations.push(face);
+    rotation.center_rotations.push(ccw ? -1 : 1);
 };
 
-const rotation_data = {};
+const apply_index_transform = (data, indices) => {
+    const copy = [...data];
+    for (let i = 0; i < indices.length; i++) {
+        data[i] = copy[indices[i]];
+    }
+}
 
-const apply_index_transform = (cube_data, indices) => {
-    const cube_index_data = indices.map((i) => cube_data[i]);
-    const len = indices.length;
-    const stride = len / 4;
-    for (let i = 0; i < len; i++) {
-        cube_data[indices[(i + stride) % len]] = cube_index_data[i];
+const apply_stride_index_transform = (data, indices) => {
+    const cube_index_data = indices.map((i) => data[i]);
+    const stride = indices.length / 4;
+    for (let i = 0; i < indices.length; i++) {
+        data[indices[(i + stride) % indices.length]] = cube_index_data[i];
     }
 }
 
 const make_identity_rotation = () => {
-    return [...Array(9 * 6).keys()];
+    return {
+        indices: [...Array(9 * 6).keys()],
+        centers: [...Array(6).keys()],
+        center_rotations: [],
+    };
 }
 
 // Make a rotation for a single face
 const make_face_rotation = (face, indices) => {
-    const cube_data = make_identity_rotation();
-    rotate_face(cube_data, face, false);
-    apply_index_transform(cube_data, indices);
-    return cube_data;
+    const rotation = make_identity_rotation();
+    rotate_face(rotation, face, false);
+    apply_stride_index_transform(rotation.indices, indices);
+    return rotation;
 };
 
 // Make a rotation for the whole cube
-const make_cube_rotation = (face, ccw_face, indices) => {
-    const cube_data = make_identity_rotation();
-    rotate_face(cube_data, face, false);
-    rotate_face(cube_data, ccw_face, true);
-    apply_index_transform(cube_data, indices);
-    return cube_data;
+const make_cube_rotation = (face, ccw_face, indices, center_rotations) => {
+    const rotation = make_identity_rotation();
+    rotate_face(rotation, face, false);
+    rotate_face(rotation, ccw_face, true);
+    apply_stride_index_transform(rotation.indices, indices);
+    apply_index_transform(rotation.centers, center_rotations);
+    return rotation;
 };
 
 // Combine multiple rotations into a single one
 const make_composed_rotation = (rotations) => {
-    const cube_data = make_identity_rotation();
+    const rotation = make_identity_rotation();
+    const total_center_rotations = Array(6).fill(0);
+
     for (const rot of rotations.split(' ')) {
-        const copy = [...cube_data];
         const rot_data = rotation_data[rot].rotation;
-        for (let i = 0; i < rot_data.length; i++) {
-            cube_data[i] = copy[rot_data[i]];
+        apply_index_transform(rotation.indices, rot_data.indices);
+        apply_index_transform(rotation.centers, rot_data.centers);
+        apply_index_transform(total_center_rotations, rot_data.centers);
+        for (let i = 0; i < rot_data.center_rotations.length; i += 2) {
+            const face = rot_data.center_rotations[i];
+            const amount = rot_data.center_rotations[i + 1];
+            total_center_rotations[face] += amount;
         }
     }
-    return cube_data;
+
+    for (let face = 0; face < 6; face++) {
+        const amount = (total_center_rotations[face] % 4 + 4) % 4;
+        if (amount !== 0) {
+            rotation.center_rotations.push(face);
+            rotation.center_rotations.push(amount);
+        }
+    }
+
+    return rotation;
 };
 
 const range = (a, b, step) => {
@@ -302,6 +355,13 @@ rotation_data['X'] = {
         ...range(off.d + 0, off.d + 9),
         ...range(off.f + 0, off.f + 9),
         ...range(off.u + 0, off.u + 9),
+    ], [
+        rubik.face.FRONT,
+        rubik.face.LEFT,
+        rubik.face.DOWN,
+        rubik.face.RIGHT,
+        rubik.face.UP,
+        rubik.face.BACK,
     ])
 };
 rotation_data['Y'] = {
@@ -310,6 +370,13 @@ rotation_data['Y'] = {
         ...range(off.f + 0, off.f + 9),
         ...range(off.l + 0, off.l + 9),
         ...range(off.b + 0, off.b + 9),
+    ], [
+        rubik.face.UP,
+        rubik.face.FRONT,
+        rubik.face.RIGHT,
+        rubik.face.BACK,
+        rubik.face.LEFT,
+        rubik.face.DOWN,
     ])
 };
 rotation_data['Z'] = {

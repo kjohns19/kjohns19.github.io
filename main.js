@@ -74,14 +74,19 @@ const create_color_selector = () => {
 };
 
 const update_grid = (grid) => {
+    const arrows = ["↑", "→", "↓", "←"];
     rubik.for_each(grid.cube, (value, i) => {
         grid.buttons[i].className = 'cubeButton color' + value;
+    });
+    rubik.get_center_orientations(grid.cube).forEach((value, i) => {
+        grid.center_buttons[i].textContent = arrows[value];
     });
 };
 
 const create_grid = (cube, color_select) => {
     const grid = {
         buttons: [],
+        center_buttons: [],
         cube: cube
     };
 
@@ -97,6 +102,9 @@ const create_grid = (cube, color_select) => {
                 button.className = 'cubeButton color0';
                 const index = grid.buttons.length;
                 grid.buttons.push(button);
+                if (i === 1 && j === 1) {
+                    grid.center_buttons.push(button);
+                }
                 cell.appendChild(button);
                 button.addEventListener('click', () => {
                     rubik.set_at_index(cube, index, color_select.color);
