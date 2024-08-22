@@ -4,11 +4,13 @@ const main = {};
 main.main = () => {
     setup_theme();
     const cube = rubik.create();
-    const color_select = create_color_selector();
-    const grid = create_grid(cube, color_select);
+    const selector = create_selector();
+    const grid = create_grid(cube, selector);
     setup_input_area(grid);
     setup_solve_area(grid);
 };
+
+const arrows = ["↑", "→", "↓", "←"];
 
 const setup_theme = () => {
     const theme_button = document.getElementById('theme_button');
@@ -35,46 +37,77 @@ const setup_theme = () => {
     });
 };
 
-const create_color_selector = () => {
-    const color_select = {
-        color: rubik.color.DONT_CARE
+const create_selector = () => {
+    const selector = {
+        color: null,
+        orientation: null,
     };
 
-    const color_select_area = document.getElementById('color_select_area');
-    const table = document.createElement('table');
-    const row = table.insertRow();
-    const buttons = rubik.color_names.map((name, value) => {
-        const cell = row.insertCell();
-        cell.className = 'cube cubeCell';
-        const button = document.createElement('button');
-        button.title = name + '\nClick on a cube tile to change its color';
-        cell.appendChild(button);
-        return button;
+    const create_buttons = (area_name, count) => {
+        console.log("Add " + count + " buttons for " + area_name);
+        const area = document.getElementById(area_name);
+        const table = document.createElement('table');
+        const row = table.insertRow();
+        const buttons = Array.from({length: count}, () => {
+            const cell = row.insertCell();
+            cell.className = 'cube cubeCell';
+            const button = document.createElement('button');
+            button.className = 'cubeButton';
+            cell.appendChild(button);
+            console.log("Add button");
+            return button;
+        });
+        area.appendChild(table);
+        return buttons;
+    };
+
+    const color_buttons = create_buttons('color_select_area', rubik.color_names.length);
+    color_buttons.forEach((button, idx) => {
+        button.title = rubik.color_names[idx] + '\nClick on a cube tile to change its color';
+        button.className += ' color' + idx;
     });
 
-    const select = (select_idx) => {
-        buttons.forEach((button, idx) => {
-            button.className = 'cubeButton color' + idx;
-            if (idx === select_idx) {
-                button.className += ' selected';
-            }
-        });
-        color_select.color = select_idx;
+    const orientation_buttons = create_buttons('orientation_select_area', 4);
+    orientation_buttons.forEach((button, idx) => {
+        button.textContent = arrows[idx];
+    });
+
+    const deselect_all = () => {
+        const deselect = (button) => {
+            button.className = button.className.replace(' selected', '');
+        };
+        color_buttons.forEach(deselect);
+        orientation_buttons.forEach(deselect);
+        selector.color = null;
+        selector.orientation = null;
     };
-    buttons.forEach((button, idx) => {
+
+    const select_color = (idx) => {
+        deselect_all();
+        color_buttons[idx].className += ' selected';
+        selector.color = idx;
+    };
+    const select_orientation = (idx) => {
+        deselect_all();
+        orientation_buttons[idx].className += ' selected';
+        selector.orientation = idx;
+    };
+
+    color_buttons.forEach((button, idx) => {
         button.addEventListener('click', () => {
-            select(idx);
+            select_color(idx);
         });
     });
-    select(0);
+    orientation_buttons.forEach((button, idx) => {
+        button.addEventListener('click', () => {
+            select_orientation(idx);
+        });
+    });
 
-    color_select_area.appendChild(table);
-
-    return color_select;
+    return selector;
 };
 
 const update_grid = (grid) => {
-    const arrows = ["↑", "→", "↓", "←"];
     rubik.for_each(grid.cube, (value, i) => {
         grid.buttons[i].className = 'cubeButton color' + value;
     });
@@ -83,7 +116,7 @@ const update_grid = (grid) => {
     });
 };
 
-const create_grid = (cube, color_select) => {
+const create_grid = (cube, selector) => {
     const grid = {
         buttons: [],
         center_buttons: [],
@@ -107,9 +140,20 @@ const create_grid = (cube, color_select) => {
                 }
                 cell.appendChild(button);
                 button.addEventListener('click', () => {
-                    rubik.set_at_index(cube, index, color_select.color);
+                    if (selector.color !== null) {
+                        rubik.set_at_index(cube, index, selector.color);
+                    }
                     update_grid(grid);
                 });
+                if (i === 1 && j === 1) {
+                    button.addEventListener('click', () => {
+                        if (selector.orientation !== null) {
+                            const face = Math.floor(index / 9);
+                            rubik.set_center_orientation(cube, face, selector.orientation);
+                        }
+                        update_grid(grid);
+                    });
+                }
             }
         }
         return table;

@@ -138,6 +138,11 @@ rubik.get_center_orientations = (cube) => {
     return ([0, 1, 2, 3, 4, 5]).map((face) => cube[9 * 6 + face]);
 };
 
+// Set the orientation of a face's center
+rubik.set_center_orientation = (cube, face, value) => {
+    cube[54 + face] = value;
+};
+
 // Apply a rotation to the cube
 rubik.rotate = (cube, rotation) => {
     const dest = Array(9 * 6 + 6);
