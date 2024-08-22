@@ -42,7 +42,7 @@ solver.solve = (cube, allowed_rotations, max_moves, check_center_orientation, ca
 
     const rotate_func = check_center_orientation
         ? rubik.rotate_into_fast
-        : rubik.rotate_into_ignore_center_orientation;
+        : rubik.rotate_into_fast_ignore_center_orientation;
 
     const solve_impl = (current_move_set, depth) => {
         const cube = cubes[depth - 1];

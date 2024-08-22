@@ -144,55 +144,44 @@ rubik.rotate = (cube, rotation) => {
     rubik.rotate_into(cube, dest, rotation);
     rubik.copy_into(dest, cube);
 };
-rubik.rotate_into = (cube, dest_cube, rotation) => {
-    // This function is called *very* often, so we use traditional for loops for performance
-    const rotation_data = cached_rotation_data[rotation];
-    const indices = rotation_data.indices;
-    const centers = rotation_data.centers;
-    const center_rotations = rotation_data.center_rotations;
 
-    // We know exactly how long the array is so we hard code the length
-    // (54 = 3 * 3 * 6 = number of tiles on a cube)
-    for (let i = 0; i < 54; i++) {
-        dest_cube[i] = cube[indices[i]];
+// These rotate functions are called *very* often, so performance really matters
+rubik.rotate_into = (cube, dest_cube, rotation) => {
+    const rotation_data = cached_rotation_data[rotation];
+
+    // 54 = 3 * 3 * 6 = number of tiles on a cube
+    // 6 = number of centers possibly moving
+    // Gives 60 total elements
+    for (let i = 0; i < 60; i++) {
+        dest_cube[i] = cube[rotation_data[i]];
     }
-    for (let i = 0; i < 6; i++) {
-        dest_cube[54 + i] = cube[54 + centers[i]];
-    }
-    for (let i = 0; i < center_rotations.length; i += 2) {
-        const idx = center_rotations[i];
-        const amount = center_rotations[i + 1];
+
+    // The remaining elements are (face, rotation) as consecutive elements
+    for (let i = 60; i < rotation_data.length; i += 2) {
+        const idx = rotation_data[i];
+        const amount = rotation_data[i + 1];
         dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
     }
 };
 
 rubik.rotate_into_fast = (cube, dest_cube, rotation) => {
-    // This function is called *very* often, so we use traditional for loops for performance
     // This function assumes that centers don't move, and exactly one center rotates
     const rotation_data = cached_rotation_data[rotation];
-    const indices = rotation_data.indices;
-    const center_rotations = rotation_data.center_rotations;
 
-    // We know exactly how long the array is so we hard code the length
-    // (54 = 3 * 3 * 6 = number of tiles on a cube)
     for (let i = 0; i < 54; i++) {
-        dest_cube[i] = cube[indices[i]];
+        dest_cube[i] = cube[rotation_data[i]];
     }
 
-    const idx = center_rotations[0];
-    const amount = center_rotations[1];
+    const idx = rotation_data[60];
+    const amount = rotation_data[61];
     dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
 };
 
-rubik.rotate_into_ignore_center_orientation = (cube, dest_cube, rotation) => {
-    // This function is called *very* often, so we use traditional for loops for performance
+rubik.rotate_into_fast_ignore_center_orientation = (cube, dest_cube, rotation) => {
+    // This function ignores any center movement or rotation
     const rotation_data = cached_rotation_data[rotation];
-    const indices = rotation_data.indices;
-
-    // We know exactly how long the array is so we hard code the length
-    // (54 = 3 * 3 * 6 = number of tiles on a cube)
     for (let i = 0; i < 54; i++) {
-        dest_cube[i] = cube[indices[i]];
+        dest_cube[i] = cube[rotation_data[i]];
     }
 };
 
@@ -441,6 +430,12 @@ rotation_data['S'] = {
 };
 
 const cached_rotation_data = {};
+
+const rotation_to_array = (rotation) => {
+    const centers = rotation.centers.map((elem) => 54 + elem);
+    return rotation.indices.concat(centers).concat(rotation.center_rotations);
+};
+
 for (const rot in rubik.rotation) {
     const val = rubik.rotation[rot];
 
@@ -450,9 +445,9 @@ for (const rot in rubik.rotation) {
     rotation_entry.name = rot;
     rotation_entry.value = val;
 
-    cached_rotation_data[val] = rotation_entry.rotation;
-    cached_rotation_data[-val] = make_composed_rotation(`${rot} ${rot} ${rot}`);
-    cached_rotation_data[val * 2] = make_composed_rotation(`${rot} ${rot}`);
+    cached_rotation_data[val] = rotation_to_array(rotation_entry.rotation);
+    cached_rotation_data[-val] = rotation_to_array(make_composed_rotation(`${rot} ${rot} ${rot}`));
+    cached_rotation_data[val * 2] = rotation_to_array(make_composed_rotation(`${rot} ${rot}`));
     cached_rotation_data[val * -2] = cached_rotation_data[val * 2];
 }
 
