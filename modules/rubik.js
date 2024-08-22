@@ -249,8 +249,6 @@ const rotate_face = (rotation, face, ccw) => {
     for (let i = 0; i < 9; i++) {
         indices[offset + i] = new_face[i];
     }
-    rotation.center_rotations.push(face);
-    rotation.center_rotations.push(ccw ? -1 : 1);
 };
 
 const apply_index_transform = (data, indices) => {
@@ -281,6 +279,8 @@ const make_face_rotation = (face, indices) => {
     const rotation = make_identity_rotation();
     rotate_face(rotation, face, false);
     apply_stride_index_transform(rotation.indices, indices);
+    rotation.center_rotations.push(face);
+    rotation.center_rotations.push(1);
     return rotation;
 };
 
