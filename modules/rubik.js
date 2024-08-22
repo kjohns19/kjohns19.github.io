@@ -165,6 +165,25 @@ rubik.rotate_into = (cube, dest_cube, rotation) => {
         dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
     }
 };
+
+rubik.rotate_into_fast = (cube, dest_cube, rotation) => {
+    // This function is called *very* often, so we use traditional for loops for performance
+    // This function assumes that centers don't move, and exactly one center rotates
+    const rotation_data = cached_rotation_data[rotation];
+    const indices = rotation_data.indices;
+    const center_rotations = rotation_data.center_rotations;
+
+    // We know exactly how long the array is so we hard code the length
+    // (54 = 3 * 3 * 6 = number of tiles on a cube)
+    for (let i = 0; i < 54; i++) {
+        dest_cube[i] = cube[indices[i]];
+    }
+
+    const idx = center_rotations[0];
+    const amount = center_rotations[1];
+    dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
+};
+
 rubik.rotate_into_ignore_center_orientation = (cube, dest_cube, rotation) => {
     // This function is called *very* often, so we use traditional for loops for performance
     const rotation_data = cached_rotation_data[rotation];
