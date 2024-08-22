@@ -94,13 +94,16 @@ rubik.clear = (cube) => {
 };
 
 // Returns whether two cubes are equal
-rubik.is_equal = (c1, c2) => {
-    return c1.every((elem, i) => elem === c2[i]);
-};
-rubik.is_equal_with_ignored = (c1, c2) => {
-    return c1.every((elem, i) => elem === c2[i] ||
-                                 elem === rubik.color.DONT_CARE ||
-                                 c2[i] === rubik.color.DONT_CARE);
+rubik.is_equal = (c1, c2, check_center_orientation) => {
+    const dont_care = rubik.color.DONT_CARE;
+    const limit = check_center_orientation ? 60 : 54;
+    for (let i = 0; i < limit; i++) {
+        const e1 = c1[i];
+        const e2 = c2[i];
+        if (!(e1 === e2 || e1 === dont_care || e2 === dont_care))
+            return false;
+    }
+    return true;
 };
 
 // Copy a cube
@@ -160,6 +163,17 @@ rubik.rotate_into = (cube, dest_cube, rotation) => {
         const idx = center_rotations[i];
         const amount = center_rotations[i + 1];
         dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
+    }
+};
+rubik.rotate_into_ignore_center_orientation = (cube, dest_cube, rotation) => {
+    // This function is called *very* often, so we use traditional for loops for performance
+    const rotation_data = cached_rotation_data[rotation];
+    const indices = rotation_data.indices;
+
+    // We know exactly how long the array is so we hard code the length
+    // (54 = 3 * 3 * 6 = number of tiles on a cube)
+    for (let i = 0; i < 54; i++) {
+        dest_cube[i] = cube[indices[i]];
     }
 };
 

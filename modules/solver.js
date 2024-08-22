@@ -13,13 +13,13 @@ const solver = {};
 // {
 //     solution: <moves (array of rotations)>
 // }
-solver.solve = (cube, allowed_rotations, max_moves, callback) => {
+solver.solve = (cube, allowed_rotations, max_moves, check_center_orientation, callback) => {
     // The solved cube has the same centers as the scrambled one
     // so no full rotations are needed
     const solved_cube = rubik.create(rubik.get_centers(cube));
 
     // Check if it's already solved
-    if (rubik.is_equal_with_ignored(cube, solved_cube)) {
+    if (rubik.is_equal(cube, solved_cube, check_center_orientation)) {
         callback({
             solution: []
         });
@@ -40,6 +40,10 @@ solver.solve = (cube, allowed_rotations, max_moves, callback) => {
         count: 0,
     };
 
+    const rotate_func = (
+        check_center_orientation ? rubik.rotate_into : rubik.rotate_into_ignore_center_orientation
+    );
+
     const solve_impl = (current_move_set, depth) => {
         const cube = cubes[depth - 1];
         const next_cube = cubes[depth];
@@ -50,11 +54,11 @@ solver.solve = (cube, allowed_rotations, max_moves, callback) => {
         for (let i = 0; i < len; i++) {
             const rotation = move_set_moves[i];
             // Make the move
-            rubik.rotate_into(cube, next_cube, rotation);
+            rotate_func(cube, next_cube, rotation);
             moves[depth - 1] = rotation;
 
             // Add the solution if it's solved, otherwise try more moves
-            const solved = rubik.is_equal_with_ignored(next_cube, solved_cube);
+            const solved = rubik.is_equal(next_cube, solved_cube, check_center_orientation);
             if (solved) {
                 callback({
                     solution: moves.slice(0, depth)
@@ -91,11 +95,11 @@ solver.solve = (cube, allowed_rotations, max_moves, callback) => {
         for (let i = 0; i < len; i++) {
             const rotation = move_set_moves[i];
             // Make the move
-            rubik.rotate_into(cube, next_cube, rotation);
+            rotate_func(cube, next_cube, rotation);
             moves[depth - 1] = rotation;
 
             // Add the solution if it's solved, otherwise try more moves
-            if (rubik.is_equal_with_ignored(next_cube, solved_cube)) {
+            if (rubik.is_equal(next_cube, solved_cube, check_center_orientation)) {
                 callback({
                     solution: moves.slice(0, depth)
                 });

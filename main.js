@@ -226,6 +226,7 @@ const setup_solve_area = (grid) => {
     document.getElementById('allow_none_button').addEventListener('click', () => set_all(false));
 
     const max_moves_input = document.getElementById('max_moves');
+    const center_orientation_input = document.getElementById('center_orientation');
     const solutions_list = document.getElementById('solutions_list');
 
 
@@ -342,10 +343,12 @@ const setup_solve_area = (grid) => {
             .filter((a) => a[1])
             .map((a) => parseInt(a[0]));
         const max_moves = max_moves_input.valueAsNumber;
+        const check_center_orientation = center_orientation_input.checked;
         worker.postMessage({
             cube: grid.cube,
             allowed_rotations: allowed_rotations,
-            max_moves: max_moves
+            max_moves: max_moves,
+            check_center_orientation: check_center_orientation,
         });
         on_start();
     });
