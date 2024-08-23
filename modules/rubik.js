@@ -165,7 +165,7 @@ rubik.rotate_into = (cube, dest_cube, rotation) => {
     for (let i = 60; i < rotation_data.length; i += 2) {
         const idx = rotation_data[i];
         const amount = rotation_data[i + 1];
-        dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
+        dest_cube[54 + idx] = (cube[54 + idx] + amount + 4) % 4;
     }
 };
 
@@ -176,10 +176,13 @@ rubik.rotate_into_fast = (cube, dest_cube, rotation) => {
     for (let i = 0; i < 54; i++) {
         dest_cube[i] = cube[rotation_data[i]];
     }
+    for (let i = 54; i < 60; i++) {
+        dest_cube[i] = cube[i];
+    }
 
     const idx = rotation_data[60];
     const amount = rotation_data[61];
-    dest_cube[54 + idx] = (dest_cube[54 + idx] + amount + 4) % 4;
+    dest_cube[54 + idx] = (cube[54 + idx] + amount + 4) % 4;
 };
 
 rubik.rotate_into_fast_ignore_center_orientation = (cube, dest_cube, rotation) => {
