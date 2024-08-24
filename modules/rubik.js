@@ -193,6 +193,13 @@ rubik.rotate_into_fast_ignore_center_orientation = (cube, dest_cube, rotation) =
     }
 };
 
+rubik.is_solvable_with = (cube, rotation) => {
+    const rotation_data = cached_rotation_data[rotation];
+    const idx = rotation_data[60];
+    const amount = rotation_data[61];
+    return (cube[54 + idx] + amount + 4) % 4 == 0;
+};
+
 rubik.parse_rotations = (rotations_str) => {
     const valid = Object.keys(rubik.rotation).join('');
     const regex = new RegExp(`[${valid}](?:'|2)?`, 'g');

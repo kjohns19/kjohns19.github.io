@@ -92,8 +92,14 @@ solver.solve = (cube, allowed_rotations, max_moves, check_center_orientation, ca
         const move_set_moves = current_move_set[0];
         const move_set_next = current_move_set[1];
         const len = move_set_moves.length;
+        const check_solvable = (depth == max_moves) && check_center_orientation;
+
         for (let i = 0; i < len; i++) {
             const rotation = move_set_moves[i];
+
+            if (check_solvable && !rubik.is_solvable_with(cube, rotation))
+                continue;
+
             // Make the move
             rotate_func(cube, next_cube, rotation);
             moves[depth - 1] = rotation;
